@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/plugins/gbd_websuite_plugin" >
+        <file>icons/icon.png</file>
+        <file>icons/mActionAdd.svg</file>
+        <file>icons/mActionFileOpen.png</file>
+        <file>icons/mActionHelpContents.png</file>
+        <file>icons/mActionTrash.png</file>
+        <file>icons/options.png</file>
+        <file>icons/link.png</file>
+    </qresource>
+</RCC>

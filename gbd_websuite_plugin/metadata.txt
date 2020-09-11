@@ -13,8 +13,8 @@ email=info@gbd-consult.de
 
 about=Einfache Bereitstellung eines Projektes für die GBD Websuite
 
-tracker=http://github.com/gbd-consult/gbd-websuite-plugin/issues
-repository=http://github.com/gbd-consult/gbd-websuite-plugin
+tracker=http://github.com/gbd-consult/gbd-websuite-manager/issues
+repository=http://github.com/gbd-consult/gbd-websuite-manager
 # End of mandatory metadata
 
 # Recommended items:

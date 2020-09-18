@@ -4,7 +4,7 @@ GBD WebSuite Manager
 Bereitstellung von Onlinekarten mittels der GBD WebSuite
 --------------------------------------------------------
 
-Dieses Plugin ermöglicht die schnelle Bereitstellung von Onlinekarten mittels der GBD WebSuite [GBD WebSuite](https://gws.gbd-consult.de). Voraussetzung ist, dass ein Nutzeraccount zu einer GBD WebSuite vorhanden ist, deren [GBD WebSuite Manager Schnittstelle](https://gws.gbd-consult.de) aktiv ist und das [GBD WebSuite Manager Modul](https://gws.gbd-consult.de) genutzt wird. 
+Dieses Plugin ermöglicht die schnelle Bereitstellung von Onlinekarten mittels der GBD WebSuite [GBD WebSuite](https://gws.gbd-consult.de). Voraussetzung ist, dass ein Nutzeraccount zu einer GBD WebSuite vorhanden ist, deren GBD WebSuite Manager Schnittstelle aktiv ist. 
 
 Installation
 ------------

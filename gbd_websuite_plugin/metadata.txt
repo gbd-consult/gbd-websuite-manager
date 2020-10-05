@@ -24,11 +24,11 @@ hasProcessingProvider=no
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=python
+tags=webservice, wms
 
 homepage=http://plugins.gbd-consult.de
 category=Web
-icon=icon.png
+icon=icons/icon.png
 # experimental flag
 experimental=True
 

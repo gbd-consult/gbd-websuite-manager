@@ -225,7 +225,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                     
                                 self.table_proj.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
                                 self.table_proj.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-                                self.label_5.setText("Angemeldet als: " + self.username + ' (' + self.hostname[8:-16] + ')')
+                                self.label_5.setText("Angemeldet als: " + self.username)
                                 self.authToken = True
                                 
                                 if self.authToken:

@@ -465,11 +465,11 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         qgis.core.QgsProject.instance().read(self.path)
 
     def checkServer(self, max_tries = 0):
-        while max_tries < 20:
+        while max_tries < 30:
             max_tries += 1
-            a1 = r.get(self.hostname)
+            a1 = r.get(self.hostname + 'project/' + self.title)
             if a1.status_code != 200:
-                time.sleep(5)
+                time.sleep(1)
             else:
                 self.table_proj.insertRow(self.rowPosition)
                 self.table_proj.setItem(self.rowPosition, 0, QtWidgets.QTableWidgetItem(self.title))
@@ -482,7 +482,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                                     + 'project/' 
                                                     + self.title) 
                                                     + '" abrufen.')
-                self.iface.mainWindow().statusBar().clearMessage()
+                '''self.iface.mainWindow().statusBar().clearMessage()'''
                 break
         else:
             self.iface.messageBar().pushCritical('GWS Fehler',
@@ -530,9 +530,9 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
                 for layer in qgis.core.QgsProject.instance().mapLayers().values():
                     if layer.providerType() == 'ogr': 
-                        self.iface.mainWindow().statusBar().showMessage("Bereite Layer " 
+                        '''self.iface.mainWindow().statusBar().showMessage("Bereite Layer " 
                                                                         + layer.name() 
-                                                                        + " vor.")
+                                                                        + " vor.")'''
 
                         qgis.core.QgsVectorFileWriter.writeAsVectorFormat(layer, 
                                                                             os.path.join(proj_dir,
@@ -581,7 +581,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     else:
                         pass
 
-                self.iface.mainWindow().statusBar().showMessage("Erstelle die Konfiguration.")
+                '''self.iface.mainWindow().statusBar().showMessage("Erstelle die Konfiguration.")'''
                 qgis.core.QgsProject.instance().write(os.path.join(proj_dir, self.title + '.qgs'))
                 tree = ET.parse(str(os.path.join(proj_dir, self.title + '.qgs')))
                 root = tree.getroot()

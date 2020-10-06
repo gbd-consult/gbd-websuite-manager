@@ -109,6 +109,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # connect functions to signals
         qgis.core.QgsProject.instance().readProject.connect(self.project_Title_or_File)
+        qgis.core.QgsProject.instance().writeProject.connect(self.project_Title_or_File)
         self.iface.newProjectCreated.connect(self.new_Project)
         self.table_proj.itemSelectionChanged.connect(self.get_row)
 
@@ -255,15 +256,14 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             project = qgis.core.QgsProject.instance().baseName()
             self.title = qgis.core.QgsProject.instance().title()
 
-            if qgis.core.QgsProject.instance().fileInfo().exists():
-                if not self.title:
-                    self.data_projekt.setText(project)
-
-                else:
-                    self.data_projekt.setText(self.title)
+            if not self.title:
+                self.data_projekt.setText(project)
 
             else:
-                pass
+                self.data_projekt.setText(self.title)
+
+        else:
+            pass
 
     def new_Project(self):
 

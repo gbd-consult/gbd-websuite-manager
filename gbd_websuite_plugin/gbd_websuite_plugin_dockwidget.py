@@ -38,8 +38,8 @@ import requests as r
 # third party imports
 ###
 
-# cartographic projections and coordinate transformations library 
-import pyproj 
+# cartographic projections and coordinate transformations library
+import pyproj
 
 # python bindings for QT application Framework
 from qgis.PyQt import QtGui, QtWidgets, uic
@@ -138,14 +138,14 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     self.checkAuth()
                     self.config_file.valueChanged.connect(self.changedConfig)
                 else:
-                    self.config_file.valueChanged.connect(self.changedConfig)    
+                    self.config_file.valueChanged.connect(self.changedConfig)
         else:
-            self.config_file.valueChanged.connect(self.changedConfig) 
+            self.config_file.valueChanged.connect(self.changedConfig)
 
     def checkAuth(self):
 
         '''
-        Function to start the Plugin. 
+        Function to start the Plugin.
         Controlls if the config.json File is valid.
         If the file is valid, the Plugin is enabled and existing projects are loaded from the server.
         '''
@@ -174,13 +174,13 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                 )
 
                                 if list(self.proj.keys())[0] != 'entries':
-                                    iface.messageBar().pushCritical('Authentifizierung fehlgeschlagen', 
+                                    iface.messageBar().pushCritical('Authentifizierung fehlgeschlagen',
                                                                     'Falsche Logindaten!')
 
                                 else:
-                                    self.iface.messageBar().pushSuccess('Login erfolgreich', 
-                                                                        'Sie sind jetzt als "' 
-                                                                        + self.username 
+                                    self.iface.messageBar().pushSuccess('Login erfolgreich',
+                                                                        'Sie sind jetzt als "'
+                                                                        + self.username
                                                                         + ' auf dem Server: '
                                                                         + self.hostname
                                                                         + '" angemeldet.')
@@ -192,7 +192,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                 
 
                             except:
-                                iface.messageBar().pushCritical('GWS Fehler!', 
+                                iface.messageBar().pushCritical('GWS Fehler!',
                                                                 'Konnte keine Verbindung zum Server herstellen.')
                                 self.clear_Plugin()
 
@@ -236,12 +236,12 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                     self.project_Title_or_File()
 
                     except: 
-                        self.iface.messageBar().pushCritical('Login fehlgeschlagen', 
+                        self.iface.messageBar().pushCritical('Login fehlgeschlagen',
                                                             'Ihre Conig-Datei enthält nicht die benötigten Informationen oder ist beschädigt!')
                         self.clear_Plugin()
 
             except:
-                self.iface.messageBar().pushCritical('Login fehlgeschlagen', 
+                self.iface.messageBar().pushCritical('Login fehlgeschlagen',
                                                     'Bitte eine .json Datei auswählen!')
                 self.clear_Plugin()
 
@@ -294,10 +294,10 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 items.append(item_text)
 
             if self.title in items:
-                reply = qgis.PyQt.QtWidgets.QMessageBox.question(self.iface.mainWindow(), 
+                reply = qgis.PyQt.QtWidgets.QMessageBox.question(self.iface.mainWindow(),
                                             'Continue?',
-                                            'Ein Projekt mit diesem Titel existiert bereits, soll dies ersetzt werden?', 
-                                            qgis.PyQt.QtWidgets.QMessageBox.Yes, 
+                                            'Ein Projekt mit diesem Titel existiert bereits, soll dies ersetzt werden?',
+                                            qgis.PyQt.QtWidgets.QMessageBox.Yes,
                                             qgis.PyQt.QtWidgets.QMessageBox.No)
 
                 if reply == QtWidgets.QMessageBox.Yes:       
@@ -312,7 +312,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.add_Project()
 
         else:
-            self.iface.messageBar().pushCritical('Kein Titel', 
+            self.iface.messageBar().pushCritical('Kein Titel',
                                                 'Bitte geben Sie einen Titel für das Projekt an!')
 
     def get_row(self):
@@ -334,47 +334,47 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             perm = QtWidgets.QMessageBox
             ret = perm.question(self,
                                 'Projekt löschen',
-                                'Soll das Projekt "'+ self.projekt + '" wirklich gelöscht werden?', 
+                                'Soll das Projekt "'+ self.projekt + '" wirklich gelöscht werden?',
                                 perm.Yes | perm.No)
 
             if ret == perm.Yes:
                 try:
-                    answ = gws_api_call(self.hostname, 
-                                        'fsList', 
-                                        {}, 
+                    answ = gws_api_call(self.hostname,
+                                        'fsList',
+                                        {},
                                         self.auth)
 
                     for key, value in answ.items():
                         for values in value:
                             for keys, valuess in values.items():
                                 if str( self.projekt + '/') in valuess:
-                                    answw = gws_api_call(self.hostname, 
-                                                        'fsDelete', 
-                                                        {'path': valuess}, 
+                                    answw = gws_api_call(self.hostname,
+                                                        'fsDelete',
+                                                        {'path': valuess},
                                                         self.auth)
 
                                 elif str( self.projekt + '.config.cx') in valuess:
-                                    answw = gws_api_call(self.hostname, 
-                                                        'fsDelete', 
-                                                        {'path': valuess}, 
+                                    answw = gws_api_call(self.hostname,
+                                                        'fsDelete',
+                                                        {'path': valuess},
                                                         self.auth)
 
                     self.table_proj.removeRow(self.row)
                     self.projekt = None
-                    self.iface.messageBar().pushSuccess('Erfolgreich gelöscht!', 
+                    self.iface.messageBar().pushSuccess('Erfolgreich gelöscht!',
                                                         'Ihr Projekt wurde in den Papierkorb verschoben.')
 
                 except:
-                    self.iface.messageBar().pushCritical('Löschen fehlgeschlagen!', 
-                                                        'Ihr Projekt ' 
-                                                        + self.projekt 
+                    self.iface.messageBar().pushCritical('Löschen fehlgeschlagen!',
+                                                        'Ihr Projekt '
+                                                        + self.projekt
                                                         + ' konnte nicht gelöscht werden.')
 
             if ret == perm.No:
                 pass
 
         else:
-            self.iface.messageBar().pushCritical('Keine Auswahl', 
+            self.iface.messageBar().pushCritical('Keine Auswahl',
                                                 'Bitte wählen Sie ein Projekt aus das sie löschen möchten.')
 
     def load_Project(self):
@@ -389,8 +389,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         if self.projekt:
             self.td = tempfile.mkdtemp()
-            answ = gws_api_call(self.hostname, 
-                                'fsList', 
+            answ = gws_api_call(self.hostname,
+                                'fsList',
                                 {}, 
                                 self.auth)
 
@@ -399,9 +399,9 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     for keys, valuess in values.items():
                         if valuess.startswith(str(self.projekt + '/')):
                             if not valuess.endswith('.qgs'):
-                                op_layer = gws_api_call(self.hostname, 
-                                                        'fsRead', 
-                                                        {'path': valuess}, 
+                                op_layer = gws_api_call(self.hostname,
+                                                        'fsRead',
+                                                        {'path': valuess},
                                                         self.auth)
                                 pathh = os.path.join(self.td, valuess.split('/')[1])
                                 save_layer = open(pathh, 'w')
@@ -419,7 +419,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             pass
 
         else:
-            self.iface.messageBar().pushCritical('Laden fehlgeschlagen', 
+            self.iface.messageBar().pushCritical('Laden fehlgeschlagen',
                                                 'Bitte wählen Sie ein Projekt aus!')
 
     def open_Help(self):
@@ -476,11 +476,11 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.table_proj.setCellWidget(self.rowPosition, 1, EditButtonWidget(self.rowPosition, self.title, self.hostname, self.font))
                 self.table_proj.scrollToItem(self.table_proj.item(self.rowPosition, 0))
                 self.table_proj.setCurrentCell(self.rowPosition, 0)
-                self.iface.messageBar().pushSuccess('Projekt gespeichert', 
-                                                    'Sie können es jetzt unter "' 
+                self.iface.messageBar().pushSuccess('Projekt gespeichert',
+                                                    'Sie können es jetzt unter "'
                                                     + str(self.hostname
-                                                    + 'project/' 
-                                                    + self.title) 
+                                                    + 'project/'
+                                                    + self.title)
                                                     + '" abrufen.')
                 '''self.iface.mainWindow().statusBar().clearMessage()'''
                 break
@@ -529,16 +529,16 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 tileLayers = {}
 
                 for layer in qgis.core.QgsProject.instance().mapLayers().values():
-                    if layer.providerType() == 'ogr': 
-                        '''self.iface.mainWindow().statusBar().showMessage("Bereite Layer " 
-                                                                        + layer.name() 
+                    if layer.providerType() == 'ogr':
+                        '''self.iface.mainWindow().statusBar().showMessage("Bereite Layer "
+                                                                        + layer.name()
                                                                         + " vor.")'''
 
                         qgis.core.QgsVectorFileWriter.writeAsVectorFormat(layer, 
                                                                             os.path.join(proj_dir,
-                                                                                        layer.name() 
-                                                                                        + '.geojson'), 
-                                                                            'utf-8', 
+                                                                                        layer.name()
+                                                                                        + '.geojson'),
+                                                                            'utf-8',
                                                                             driverName = 'GeoJson')
 
                         lay_stor = os.path.getsize(os.path.join(proj_dir,
@@ -550,27 +550,27 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             with open(os.path.join(proj_dir, layer.name() + '.geojson'), 'rb') as fp:
                                 data = fp.read()
                                 answ = gws_api_call(
-                                    self.hostname, 
-                                    'fsWrite', 
-                                    {'path': '/' 
-                                    + self.title 
-                                    + '/' 
-                                    + layer.name() 
-                                    + '.geojson', 
+                                    self.hostname,
+                                    'fsWrite',
+                                    {'path': '/'
+                                    + self.title
+                                    + '/'
+                                    + layer.name()
+                                    + '.geojson',
                                     'data': data},
                                     auth = self.auth )
 
                         else:
                             excludeLayers.append(layer.name())
-                            self.iface.messageBar().pushCritical('Layer nicht hinzugefügt', 
-                                                                layer.name() 
-                                                                + ' ist größer als 20 MB.')       
-                    
+                            self.iface.messageBar().pushCritical('Layer nicht hinzugefügt',
+                                                                layer.name()
+                                                                + ' ist größer als 20 MB.')
+
                     elif layer.providerType() == 'gdal':
                         excludeLayers.append(layer.name())
-                        self.iface.messageBar().pushWarning('Raster Layer', 
-                                                            'Ihr Layer "' 
-                                                            + layer.name() 
+                        self.iface.messageBar().pushWarning('Raster Layer',
+                                                            'Ihr Layer "'
+                                                            + layer.name()
                                                             + '" wird nicht angezeigt, da es sich um einen Raster-Layer handelt.')
 
                     elif layer.providerType() == 'wms':
@@ -629,7 +629,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         map.layers+  {
                             title """ + self.title + """
                             type "qgis" 
-                            path "./""" + self.title + """/""" + self.title + """.qgs" 
+                            path "./""" + self.title + """/""" + self.title + """.qgs"
                             directRender ["wms"]
                         }
                     }"""
@@ -645,8 +645,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     config = config2
                 else:
                     pass
-                
-                
+
+
                 if not tileLayers:
                     pass
                 else:
@@ -654,21 +654,21 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         config3 = config[:-1] + """map.layers+  {
                             title """ + '''"''' + i + '''"''' + """
                             type "tile"
-                            url """ + '''"''' + tileLayers[i] + '''"''' +""" \n} 
+                            url """ + '''"''' + tileLayers[i] + '''"''' +""" \n}
                             """ + config[-1:]
                         config = config3
 
                 ###
-                
+
                 gws_api_call(
-                    self.hostname, 
-                    'fsWrite', 
-                    {'path': self.title + '.config.cx', 'data': config}, 
+                    self.hostname,
+                    'fsWrite',
+                    {'path': self.title + '.config.cx', 'data': config},
                     auth = self.auth
                 )
 
                 self.checkServer()
-            
+
             else:
                 self.iface.messageBar().pushCritical('CRS Fehler!', 'Bitte wählen Sie ein Koordinatensystem aus, das auf Meter als Einheit nutzt.')
         

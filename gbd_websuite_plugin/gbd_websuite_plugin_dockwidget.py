@@ -525,11 +525,12 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 proj_dir = tempfile.mkdtemp()
 
                 change_layer_source = []
+                changeMemoryLayers = []
                 excludeLayers = []
                 tileLayers = {}
 
                 for layer in qgis.core.QgsProject.instance().mapLayers().values():
-                    if layer.providerType() == 'ogr':
+                    if layer.providerType() in {'ogr', 'memory'}:
                         '''self.iface.mainWindow().statusBar().showMessage("Bereite Layer "
                                                                         + layer.name()
                                                                         + " vor.")'''
@@ -560,11 +561,14 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                     'data': data},
                                     auth = self.auth )
 
+                            if layer.providerType() == 'memory':
+                                changeMemoryLayers.append(layer.id())
+
                         else:
                             excludeLayers.append(layer.name())
                             self.iface.messageBar().pushCritical('Layer nicht hinzugefügt',
                                                                 layer.name()
-                                                                + ' ist größer als 20 MB.')
+                                                                + ' ist größer als 25 MB.')
 
                     elif layer.providerType() == 'gdal':
                         excludeLayers.append(layer.name())
@@ -592,10 +596,19 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         datasource = maplayer.find('datasource')
                         name = maplayer.find('layername')
                         datasource.text = './' + name.text + '.geojson'
-                        datasource2 = maplayer.find('datasource')
+
+                    if id.text in changeMemoryLayers:
+                        pe = maplayer.find('provider')
+                        pe.attrib['encoding'] = 'UTF-8'
+                        pe.text = 'ogr'
 
                     else:
                         pass
+
+                for templayer in root.iter('layer-tree-layer'):
+                    id = templayer.attrib['id']
+                    if id in changeMemoryLayers:
+                        templayer.attrib['providerKey'] = 'ogr'
 
                 tree.write(str(os.path.join(proj_dir, self.title + '.qgs')))
 

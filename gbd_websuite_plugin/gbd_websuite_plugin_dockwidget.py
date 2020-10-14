@@ -34,6 +34,9 @@ import webbrowser
 import time
 import requests as r
 
+#test
+#import threading
+
 ###
 # third party imports
 ###
@@ -43,7 +46,7 @@ import pyproj
 
 # python bindings for QT application Framework
 from qgis.PyQt import QtGui, QtWidgets, uic
-from qgis.PyQt.QtCore import pyqtSignal, QFileInfo
+from qgis.PyQt.QtCore import pyqtSignal, QFileInfo, QThread
 
 # Python QGIS API
 from qgis.utils import iface
@@ -57,6 +60,9 @@ from .gws_password import encode
 
 from .dw_b_options import button_options
 
+#pb
+#from .gbd_websuite_progressBar import progressBar
+
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'gbd_websuite_plugin_dockwidget_base.ui'))
 
@@ -64,6 +70,8 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     closingPlugin = pyqtSignal()
+    #pb
+    # countChanged = pyqtSignal(int)
 
     def __init__(self, parent=None):
         """Constructor."""
@@ -75,6 +83,11 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.iface = iface
+
+        #pb
+        # self.pB = progressBar()
+
+        #self.uLE = uploadLayersExternal()
 
         # set path to a directory where projects are stores
         # later that has to work automated
@@ -104,7 +117,9 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.button_delete_proj.clicked.connect(self.delete_Project)
         self.button_load_proj.clicked.connect(self.load_Project)
         self.button_load_proj.clicked.connect(self.open_Project)
-        self.button_help.clicked.connect(self.open_Help)
+        #self.button_help.clicked.connect(self.open_Help)
+        #pb
+        #self.button_help.clicked.connect(self.showProgressBar)
         self.button_options.clicked.connect(self.doButtonOptions)
 
         # connect functions to signals
@@ -112,7 +127,41 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         qgis.core.QgsProject.instance().writeProject.connect(self.project_Title_or_File)
         self.iface.newProjectCreated.connect(self.new_Project)
         self.table_proj.itemSelectionChanged.connect(self.get_row)
+        #pb
+        #self.uLE.countChanged.connect(self.onCountChanged)
+        #self.countChanged.connect(self.setPB)
 
+    #pb
+    #def setPB(self, value):
+        #self.pB.progressBar.setValue(value)
+
+    '''def showProgressBar(self):
+        self.pB = progressBar()
+        self.pB.show()
+        self.calc = External()
+        self.calc.countChanged.connect(self.onCountChanged)
+        self.calc.start()
+
+    def onCountChanged(self, value):
+        self.pB.progressBar.setValue(value)'''
+
+    '''def sleeper(self, seconds):
+        print('start')
+        time.sleep(seconds)
+        print('fertig')
+
+    def showProgressBar(self):
+
+        self.pB = progressBar()
+        self.pB.show()
+        self.pB.progressBar.setValue(1)
+        t = threading.Thread(target = self.sleeper, args=(2,))
+        t.start()
+        t.join()
+        self.pB.progressBar.setValue(10)'''
+
+
+        
     def doButtonOptions(self):
 
         ''' TODO: Function to open the advanced options main window, must be implemented '''
@@ -277,6 +326,10 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def button_add_Project(self):
 
+        #pb
+        # self.pB = progressBar()
+        #self.pB.show()
+
         '''Function to add or change projects to the directory'''
 
         self.title = self.data_projekt.text()
@@ -300,7 +353,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                             qgis.PyQt.QtWidgets.QMessageBox.Yes,
                                             qgis.PyQt.QtWidgets.QMessageBox.No)
 
-                if reply == QtWidgets.QMessageBox.Yes:       
+                if reply == QtWidgets.QMessageBox.Yes:
                     self.add_Project()
                     test = self.table_proj.findItems(self.title, qgis.PyQt.QtCore.Qt.MatchExactly)
                     self.table_proj.removeRow(test[0].row())
@@ -493,7 +546,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         '''
         Function to add a new Project to the Server
         '''
-
+        #pb
+        #self.countChanged.emit(5)
         if qgis.core.QgsProject.instance().crs().authid()[:4] == 'EPSG':
             if qgis.core.QgsProject.instance().crs().mapUnits() == 0:
 
@@ -529,6 +583,9 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 excludeLayers = []
                 tileLayers = {}
 
+                #pb
+                # self.countChanged.emit(15)
+
                 for layer in qgis.core.QgsProject.instance().mapLayers().values():
                     if layer.providerType() in {'ogr', 'memory'}:
                         '''self.iface.mainWindow().statusBar().showMessage("Bereite Layer "
@@ -548,6 +605,13 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         
                         if lay_stor < 20000000:
                             change_layer_source.append(layer.id())
+                            
+                            #pb
+                            #self.uLE = uploadLayersExternal(proj_dir, layer.name(), self.hostname, self.title, self.auth)
+                            #self.uLE.countChanged.connect(self.onCountChanged)
+                            #self.uLE.start()
+                            #self.uLE.run(proj_dir, layer.name(), self.hostname, self.title, self.auth)
+                            self.countChanged.emit(25)
                             with open(os.path.join(proj_dir, layer.name() + '.geojson'), 'rb') as fp:
                                 data = fp.read()
                                 answ = gws_api_call(
@@ -560,6 +624,9 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                     + '.geojson',
                                     'data': data},
                                     auth = self.auth )
+
+                            #pb
+                            # self.countChanged.emit(75)
 
                             if layer.providerType() == 'memory':
                                 changeMemoryLayers.append(layer.id())
@@ -682,11 +749,58 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
                 self.checkServer()
 
+                #pb
+                # self.countChanged.emit(100)
+
             else:
                 self.iface.messageBar().pushCritical('CRS Fehler!', 'Bitte wählen Sie ein Koordinatensystem aus, das auf Meter als Einheit nutzt.')
         
         else:
             self.ifac.messageBar().pushCritical('CRS Fehler!', 'Bitte wählen sie ein EPSG-Koordinatensystem aus.')
+
+'''class uploadLayersExternal(QThread):
+
+    countChanged = pyqtSignal(int)
+
+    def __init__(self, proj_dir, layer, hostname, title, auth):
+        QThread.__init__(self)
+
+    def run(self):
+
+        self.proj_dir = proj_dir
+        self.layer = layer
+        self.hostname = hostname
+        self.title = title
+        self.auth = auth
+
+        with open(os.path.join(self.proj_dir, self.layer + '.geojson'), 'rb') as fp:
+                                data = fp.read()
+                                answ = gws_api_call(
+                                    self.hostname,
+                                    'fsWrite',
+                                    {'path': '/'
+                                    + self.title
+                                    + '/'
+                                    + self.layer
+                                    + '.geojson',
+                                    'data': data},
+                                    auth = self.auth )
+        self.countChanged.emit(10)
+
+class External(QThread):
+    """
+    Runs a counter thread.
+    """
+
+    countChanged = pyqtSignal(int)
+
+    def run(self, TIME_LIMIT=100):
+        count = 0
+        while count < TIME_LIMIT:
+            count +=1
+            time.sleep(1)
+            self.countChanged.emit(count)'''
+
 
 class EditButtonWidget(QtWidgets.QWidget):
 

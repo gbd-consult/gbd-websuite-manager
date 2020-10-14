@@ -51,9 +51,11 @@ PY_FILES = \
 	gbd_websuite_plugin_dockwidget.py \
 	gws_api.py \
 	gws_password.py \
-	dw_b_options.py 
+	dw_b_options.py \
+	gbd_websuite_progressBar.py
 
-UI_FILES = gbd_websuite_plugin_dockwidget_base.ui
+UI_FILES = gbd_websuite_plugin_dockwidget_base.ui \
+	gbd_websuite_progressBar_base.ui
 
 EXTRAS = metadata.txt \
 	resources.qrc

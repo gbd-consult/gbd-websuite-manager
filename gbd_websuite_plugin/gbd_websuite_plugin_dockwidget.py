@@ -33,6 +33,7 @@ import json
 import webbrowser
 import time
 import requests as r
+import pathlib
 
 #test
 #import threading
@@ -108,6 +109,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.path = None
         self.row = None
         self.font = None
+        self.projectFolder = None
 
         # tempfile
         self.td = None
@@ -188,6 +190,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     self.config_file.valueChanged.connect(self.changedConfig)
                 else:
                     self.config_file.valueChanged.connect(self.changedConfig)
+            else:
+                self.config_file.valueChanged.connect(self.changedConfig)
         else:
             self.config_file.valueChanged.connect(self.changedConfig)
 
@@ -213,6 +217,14 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             self.username = p['user']
                             self.password = p['password']
                             self.hostname = p['hostname']
+                            try:
+                                if p['projectFolder']:
+                                    self.projectFolder = p['projectFolder']
+                                else:
+                                    pass
+                            except:
+                                self.projectFolder = os.path.join(self.confPath, 'GBD_WebSuite', 'projects')
+
                             self.auth = (self.username, self.password)
                             try:
                                 self.proj = gws_api_call(
@@ -434,14 +446,15 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         '''Load projects from the Websuite folder'''
 
-        if self.td:
-            shutil.rmtree(self.td)
+        #if self.td:
+        #    shutil.rmtree(self.td)
 
-        else:
-            pass
+        #else:
+        #    pass
 
         if self.projekt:
-            self.td = tempfile.mkdtemp()
+            pathlib.Path(self.projectFolder, self.projekt).mkdir(parents=True, exist_ok=True)
+            #self.td = tempfile.mkdtemp()
             answ = gws_api_call(self.hostname,
                                 'fsList',
                                 {}, 
@@ -456,14 +469,16 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                                         'fsRead',
                                                         {'path': valuess},
                                                         self.auth)
-                                pathh = os.path.join(self.td, valuess.split('/')[1])
+                                #pathh = os.path.join(self.td, valuess.split('/')[1])
+                                pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
                                 save_layer = open(pathh, 'w')
                                 op_layer = op_layer['data'].decode('utf-8')
                                 save_layer.write(op_layer)
 
                             else:
                                 op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
-                                self.path = os.path.join(self.td, self.projekt + '.qgs')
+                                #self.path = os.path.join(self.td, self.projekt + '.qgs')
+                                self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
                                 save_proj = open(self.path, 'w')
                                 op_proj = op_proj['data'].decode('utf-8')
                                 save_proj.write(op_proj)
@@ -492,12 +507,12 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.aktuelles_projekt.setEnabled(False)
         self.liste_projekte.setEnabled(False)
         self.table_proj.setEnabled(False)
-        if self.td:
+        '''if self.td:
             shutil.rmtree(self.td)
             self.td = None
 
         else:
-            pass
+            pass'''
 
     def closeEvent(self, event):
 
@@ -576,7 +591,11 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     extentGermany = str(extentGermany)
                     extentGermany = extentGermany.replace(',', '')
 
-                proj_dir = tempfile.mkdtemp()
+                #proj_dir = tempfile.mkdtemp()
+                pathlib.Path(self.projectFolder, self.title).mkdir(parents=True, exist_ok=True)
+                proj_dir = os.path.join(self.projectFolder, self.title)
+                
+
 
                 change_layer_source = []
                 changeMemoryLayers = []
@@ -611,7 +630,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             #self.uLE.countChanged.connect(self.onCountChanged)
                             #self.uLE.start()
                             #self.uLE.run(proj_dir, layer.name(), self.hostname, self.title, self.auth)
-                            self.countChanged.emit(25)
+                            #self.countChanged.emit(25)
                             with open(os.path.join(proj_dir, layer.name() + '.geojson'), 'rb') as fp:
                                 data = fp.read()
                                 answ = gws_api_call(

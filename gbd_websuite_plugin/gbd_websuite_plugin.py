@@ -24,12 +24,14 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
+import qgis.core
 # Initialize Qt resources from file resources.py
 from .resources import *
 
 # Import the code for the DockWidget
 from .gbd_websuite_plugin_dockwidget import gbdWebsuiteDockWidget
 import os.path
+import pathlib
 
 
 class gbdWebsuite:
@@ -72,6 +74,13 @@ class gbdWebsuite:
 
         self.pluginIsActive = False
         self.dockwidget = None
+
+        # initialize plugin folder
+        if os.path.exists(os.path.join(qgis.core.QgsApplication.qgisSettingsDirPath(), 'GBD_WebSuite')):
+            pass
+        else:
+            pathlib.Path(qgis.core.QgsApplication.qgisSettingsDirPath(), 'GBD_WebSuite').mkdir(parents=True, exist_ok=True)
+
 
 
     # noinspection PyMethodMayBeStatic

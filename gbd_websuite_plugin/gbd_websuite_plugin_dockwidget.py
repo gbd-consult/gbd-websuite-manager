@@ -217,12 +217,9 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             self.username = p['user']
                             self.password = p['password']
                             self.hostname = p['hostname']
-                            try:
-                                if p['projectFolder']:
-                                    self.projectFolder = p['projectFolder']
-                                else:
-                                    pass
-                            except:
+                            if 'projectFolder' in p:
+                                self.projectFolder = p['projectFolder']
+                            else:
                                 self.projectFolder = os.path.join(self.confPath, 'GBD_WebSuite', 'projects')
 
                             self.auth = (self.username, self.password)

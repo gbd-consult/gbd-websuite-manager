@@ -232,26 +232,26 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                 )
 
                                 if list(self.proj.keys())[0] != 'entries':
-                                    iface.messageBar().pushCritical('Authentifizierung fehlgeschlagen',
-                                                                    'Falsche Logindaten!')
+                                    iface.messageBar().pushCritical(self.tr('Authentifizierung fehlgeschlagen'),
+                                                                    self.tr('Falsche Logindaten!'))
 
                                 else:
-                                    self.iface.messageBar().pushSuccess('Login erfolgreich',
-                                                                        'Sie sind jetzt als "'
+                                    self.iface.messageBar().pushSuccess(self.tr('Login erfolgreich'),
+                                                                        self.tr('Sie sind jetzt als "')
                                                                         + self.username
-                                                                        + ' auf dem Server: '
+                                                                        + self.tr(' auf dem Server: ')
                                                                         + self.hostname
-                                                                        + '" angemeldet.')
+                                                                        + self.tr('" angemeldet.'))
 
                             except r.exceptions.SSLError:
                                 self.clear_Plugin()
-                                iface.messageBar().pushCritical('GWS Fehler!',
-                                                                'Das SSL-Zertifikat des Servers ist abgelaufen. Bitte kontaktieren Sie den Administrator.')
+                                iface.messageBar().pushCritical(self.tr('GWS Fehler!'),
+                                                                self.tr('Das SSL-Zertifikat des Servers ist abgelaufen. Bitte kontaktieren Sie den Administrator.'))
                                 
 
                             except:
-                                iface.messageBar().pushCritical('GWS Fehler!',
-                                                                'Konnte keine Verbindung zum Server herstellen.')
+                                iface.messageBar().pushCritical(self.tr('GWS Fehler!'),
+                                                                self.tr('Konnte keine Verbindung zum Server herstellen.'))
                                 self.clear_Plugin()
 
                             else:
@@ -284,7 +284,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                     
                                 self.table_proj.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
                                 self.table_proj.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-                                self.label_5.setText("Angemeldet als: " + self.username)
+                                self.label_5.setText(self.tr("Angemeldet als: ") + self.username)
                                 self.authToken = True
                                 
                                 if self.authToken:
@@ -294,13 +294,13 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                     self.project_Title_or_File()
 
                     except: 
-                        self.iface.messageBar().pushCritical('Login fehlgeschlagen',
-                                                            'Ihre Conig-Datei enthält nicht die benötigten Informationen oder ist beschädigt!')
+                        self.iface.messageBar().pushCritical(self.tr('Login fehlgeschlagen'),
+                                                            self.tr('Ihre Conig-Datei enthält nicht die benötigten Informationen oder ist beschädigt!'))
                         self.clear_Plugin()
 
             except:
-                self.iface.messageBar().pushCritical('Login fehlgeschlagen',
-                                                    'Bitte eine .json Datei auswählen!')
+                self.iface.messageBar().pushCritical(self.tr('Login fehlgeschlagen'),
+                                                    self.tr('Bitte eine .json Datei auswählen!'))
                 self.clear_Plugin()
 
         else:
@@ -357,8 +357,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             if self.title in items:
                 reply = qgis.PyQt.QtWidgets.QMessageBox.question(self.iface.mainWindow(),
-                                            'Continue?',
-                                            'Ein Projekt mit diesem Titel existiert bereits, soll dies ersetzt werden?',
+                                            self.tr('Fortfahren?'),
+                                            self.tr('Ein Projekt mit diesem Titel existiert bereits, soll dies ersetzt werden?'),
                                             qgis.PyQt.QtWidgets.QMessageBox.Yes,
                                             qgis.PyQt.QtWidgets.QMessageBox.No)
 
@@ -374,8 +374,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.add_Project()
 
         else:
-            self.iface.messageBar().pushCritical('Kein Titel',
-                                                'Bitte geben Sie einen Titel für das Projekt an!')
+            self.iface.messageBar().pushCritical(self.tr('Kein Titel'),
+                                                self.tr('Bitte geben Sie einen Titel für das Projekt an!'))
 
     def get_row(self):
 
@@ -395,8 +395,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if self.projekt:
             perm = QtWidgets.QMessageBox
             ret = perm.question(self,
-                                'Projekt löschen',
-                                'Soll das Projekt "'+ self.projekt + '" wirklich gelöscht werden?',
+                                self.tr('Projekt löschen'),
+                                self.tr('Soll das Projekt "')+ self.projekt + self.tr('" wirklich gelöscht werden?'),
                                 perm.Yes | perm.No)
 
             if ret == perm.Yes:
@@ -423,21 +423,21 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
                     self.table_proj.removeRow(self.row)
                     self.projekt = None
-                    self.iface.messageBar().pushSuccess('Erfolgreich gelöscht!',
-                                                        'Ihr Projekt wurde in den Papierkorb verschoben.')
+                    self.iface.messageBar().pushSuccess(self.tr('Erfolgreich gelöscht!'),
+                                                        self.tr('Ihr Projekt wurde in den Papierkorb verschoben.'))
 
                 except:
-                    self.iface.messageBar().pushCritical('Löschen fehlgeschlagen!',
-                                                        'Ihr Projekt '
+                    self.iface.messageBar().pushCritical(self.tr('Löschen fehlgeschlagen!'),
+                                                        self.tr('Ihr Projekt ')
                                                         + self.projekt
-                                                        + ' konnte nicht gelöscht werden.')
+                                                        + self.tr(' konnte nicht gelöscht werden.'))
 
             if ret == perm.No:
                 pass
 
         else:
-            self.iface.messageBar().pushCritical('Keine Auswahl',
-                                                'Bitte wählen Sie ein Projekt aus das sie löschen möchten.')
+            self.iface.messageBar().pushCritical(self.tr('Keine Auswahl'),
+                                                self.tr('Bitte wählen Sie ein Projekt aus das sie löschen möchten.'))
 
     def load_Project(self):
 
@@ -484,8 +484,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             pass
 
         else:
-            self.iface.messageBar().pushCritical('Laden fehlgeschlagen',
-                                                'Bitte wählen Sie ein Projekt aus!')
+            self.iface.messageBar().pushCritical(self.tr('Laden fehlgeschlagen'),
+                                                self.tr('Bitte wählen Sie ein Projekt aus!'))
 
     def open_Help(self):
 
@@ -500,7 +500,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.authToken = False
         self.table_proj.setRowCount(0)
         self.data_projekt.setText('')
-        self.label_5.setText("Angemeldet als: ")
+        self.label_5.setText(self.tr("Angemeldet als: "))
         self.aktuelles_projekt.setEnabled(False)
         self.liste_projekte.setEnabled(False)
         self.table_proj.setEnabled(False)
@@ -541,17 +541,17 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.table_proj.setCellWidget(self.rowPosition, 1, EditButtonWidget(self.rowPosition, self.title, self.hostname, self.font))
                 self.table_proj.scrollToItem(self.table_proj.item(self.rowPosition, 0))
                 self.table_proj.setCurrentCell(self.rowPosition, 0)
-                self.iface.messageBar().pushSuccess('Projekt gespeichert',
-                                                    'Sie können es jetzt unter "'
+                self.iface.messageBar().pushSuccess(self.tr('Projekt gespeichert'),
+                                                    self.tr('Sie können es jetzt unter "')
                                                     + str(self.hostname
                                                     + 'project/'
                                                     + self.title)
-                                                    + '" abrufen.')
+                                                    + self.tr('" abrufen.'))
                 '''self.iface.mainWindow().statusBar().clearMessage()'''
                 break
         else:
-            self.iface.messageBar().pushCritical('GWS Fehler',
-                                                    'Server konnte noch nicht gestartet werden. Bei erneutem auftreten kontaktieren Sie bitte Ihren Admin.')
+            self.iface.messageBar().pushCritical(self.tr('GWS Fehler'),
+                                                    self.tr('Server konnte noch nicht gestartet werden. Bei erneutem auftreten kontaktieren Sie bitte Ihren Admin.'))
 
     def add_Project(self):
 
@@ -649,16 +649,16 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
                         else:
                             excludeLayers.append(layer.name())
-                            self.iface.messageBar().pushCritical('Layer nicht hinzugefügt',
+                            self.iface.messageBar().pushCritical(self.tr('Layer nicht hinzugefügt'),
                                                                 layer.name()
-                                                                + ' ist größer als 25 MB.')
+                                                                + self.tr(' ist größer als 25 MB.'))
 
                     elif layer.providerType() == 'gdal':
                         excludeLayers.append(layer.name())
-                        self.iface.messageBar().pushWarning('Raster Layer',
-                                                            'Ihr Layer "'
+                        self.iface.messageBar().pushWarning(self.tr('Raster Layer'),
+                                                            self.tr('Ihr Layer "')
                                                             + layer.name()
-                                                            + '" wird nicht angezeigt, da es sich um einen Raster-Layer handelt.')
+                                                            + self.tr('" wird nicht angezeigt, da es sich um einen Raster-Layer handelt.'))
 
                     elif layer.providerType() == 'wms':
                         if 'type=xyz' in layer.publicSource():
@@ -769,10 +769,10 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 # self.countChanged.emit(100)
 
             else:
-                self.iface.messageBar().pushCritical('CRS Fehler!', 'Bitte wählen Sie ein Koordinatensystem aus, das auf Meter als Einheit nutzt.')
+                self.iface.messageBar().pushCritical(self.tr('CRS Fehler!'), self.tr('Bitte wählen Sie ein Koordinatensystem aus, das auf Meter als Einheit nutzt.'))
         
         else:
-            self.ifac.messageBar().pushCritical('CRS Fehler!', 'Bitte wählen sie ein EPSG-Koordinatensystem aus.')
+            self.ifac.messageBar().pushCritical(self.tr('CRS Fehler!'), self.tr('Bitte wählen sie ein EPSG-Koordinatensystem aus.'))
 
 '''class uploadLayersExternal(QThread):
 
@@ -841,12 +841,12 @@ class EditButtonWidget(QtWidgets.QWidget):
         self.layout.setSpacing(0)
 
         self.b1 = QtWidgets.QPushButton()
-        self.b1.setToolTip('Öffne die WebSuite')
+        self.b1.setToolTip(self.tr('Öffne die WebSuite'))
         self.b1.setIcon(QtGui.QIcon(':/plugins/gbd_websuite_plugin/icons/icon.png'))
         self.b1.clicked.connect(self.doButtonB1)
 
         self.b2 = QtWidgets.QPushButton()
-        self.b2.setToolTip('Link anzeigen')
+        self.b2.setToolTip(self.tr('Link anzeigen'))
         self.b2.setIcon(QtGui.QIcon(':/plugins/gbd_websuite_plugin/icons/link.png'))
         self.b2.clicked.connect(self.doButtonB2)
 
@@ -889,43 +889,43 @@ class Window2(QtWidgets.QMainWindow):
 
         # Layout
         self.setGeometry(0,0,670,185)
-        self.setWindowTitle('Link zum Projekt: ' + self.title)
+        self.setWindowTitle(self.tr('Link zum Projekt: ') + self.title)
 
         self.pushButton = QtWidgets.QPushButton(self)
         self.pushButton.setGeometry(qgis.PyQt.QtCore.QRect(540, 20, 110, 25))
         self.pushButton.setObjectName("pushButton")
-        self.pushButton.setText("Link kopieren")
+        self.pushButton.setText(self.tr("Link kopieren"))
         self.pushButton.clicked.connect(self.copy_link)
         self.pushButton.setFont(self.font)
 
         self.pushButton_2 = QtWidgets.QPushButton(self)
         self.pushButton_2.setGeometry(qgis.PyQt.QtCore.QRect(540, 80, 110, 25))
         self.pushButton_2.setObjectName("pushButton_2")
-        self.pushButton_2.setText("Link kopieren")
+        self.pushButton_2.setText(self.tr("Link kopieren"))
         self.pushButton_2.setFont(self.font)
 
         self.pushButton_3 = QtWidgets.QPushButton(self)
         self.pushButton_3.setGeometry(qgis.PyQt.QtCore.QRect(540, 140, 110, 25))
         self.pushButton_3.setObjectName("pushButton_3")
-        self.pushButton_3.setText("Link kopieren")
+        self.pushButton_3.setText(self.tr("Link kopieren"))
         self.pushButton_3.setFont(self.font)
 
         self.label = QtWidgets.QLabel(self)
         self.label.setGeometry(qgis.PyQt.QtCore.QRect(20, 20, 67, 17))
         self.label.setObjectName("label")
-        self.label.setText("Webseite: ")
+        self.label.setText(self.tr("Webseite: "))
         self.label.setFont(self.font)
 
         self.label_2 = QtWidgets.QLabel(self)
         self.label_2.setGeometry(qgis.PyQt.QtCore.QRect(20, 80, 67, 17))
         self.label_2.setObjectName("label_2")
-        self.label_2.setText("WMS: ")
+        self.label_2.setText(self.tr("WMS: "))
         self.label_2.setFont(self.font)
 
         self.label_3 = QtWidgets.QLabel(self)
         self.label_3.setGeometry(qgis.PyQt.QtCore.QRect(20, 140, 67, 17))
         self.label_3.setObjectName("label_3")
-        self.label_3.setText("WFS: ")
+        self.label_3.setText(self.tr("WFS: "))
         self.label_3.setFont(self.font)
 
         self.textBrowser = QtWidgets.QTextBrowser(self)

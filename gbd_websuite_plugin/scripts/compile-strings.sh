@@ -8,5 +8,6 @@ do
     echo "Processing: ${LOCALE}.ts"
     # Note we don't use pylupdate with qt .pro file approach as it is flakey
     # about what is made available.
-    $LRELEASE i18n/${LOCALE}.ts
+    #$LRELEASE i18n/${LOCALE}.ts
+    lrelease i18n/${LOCALE}.ts
 done

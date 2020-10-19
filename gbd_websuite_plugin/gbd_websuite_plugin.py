@@ -67,8 +67,8 @@ class gbdWebsuite:
         self.actions = []
         self.menu = self.tr(u'&GBD WebSuite')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'gbdWebsuite')
-        self.toolbar.setObjectName(u'gbdWebsuite')
+        self.toolbar = self.iface.addToolBar(u'GBD WebSuite Manager')
+        self.toolbar.setObjectName(u'GBD WebSuite Manager')
 
         #print "** INITIALIZING gbdWebsuite"
 

@@ -663,7 +663,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     elif layer.providerType() == 'wms':
                         if 'type=xyz' in layer.publicSource():
                             htmlText = layer.htmlMetadata()
-                            url = htmlText.split('<td>GetCapabilities-URL</td><td>', 1)[1].split('</td>', 1)[0]
+                            url = htmlText.split('<td>GetCapabilitiesUrl</td><td>', 1)[1].split('</td>', 1)[0]
                             tileLayers[layer.name()] = url
                     else:
                         pass

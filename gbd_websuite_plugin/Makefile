@@ -51,7 +51,8 @@ PY_FILES = \
 	gws_api.py \
 	gws_password.py \
 	dw_b_options.py \
-	gbd_websuite_progressBar.py
+	gbd_websuite_progressBar.py \
+	gbd_hash.py
 
 UI_FILES = gbd_websuite_plugin_dockwidget_base.ui \
 	gbd_websuite_progressBar_base.ui

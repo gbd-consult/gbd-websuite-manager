@@ -58,6 +58,8 @@ import qgis.core
 ###
 from .gws_api import gws_api_call, as_uid
 from .gws_password import encode
+from .gbd_hash import gbd_manager_hash
+#from gbd_modules import gws_api, gws_password
 
 from .dw_b_options import button_options
 
@@ -85,6 +87,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.setupUi(self)
         self.iface = iface
 
+        #hash
+        self.H = gbd_manager_hash()
         #pb
         # self.pB = progressBar()
 
@@ -120,8 +124,6 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.button_load_proj.clicked.connect(self.load_Project)
         self.button_load_proj.clicked.connect(self.open_Project)
         #self.button_help.clicked.connect(self.open_Help)
-        #pb
-        #self.button_help.clicked.connect(self.showProgressBar)
         self.button_options.clicked.connect(self.doButtonOptions)
 
         # connect functions to signals
@@ -450,6 +452,11 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         #    pass
 
         if self.projekt:
+            
+            if os.path.isfile(os.path.join(self.projectFolder, self.project, 'hash_list.json')):
+                serverHashList = self.H.load_hash_list(self.hostname, self.auth, self.title)
+                
+
             pathlib.Path(self.projectFolder, self.projekt).mkdir(parents=True, exist_ok=True)
             #self.td = tempfile.mkdtemp()
             answ = gws_api_call(self.hostname,
@@ -461,7 +468,26 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 for values in value:
                     for keys, valuess in values.items():
                         if valuess.startswith(str(self.projekt + '/')):
-                            if not valuess.endswith('.qgs'):
+                            if valuess.endswith('.qgs'):
+
+                                op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                #self.path = os.path.join(self.td, self.projekt + '.qgs')
+                                self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
+                                save_proj = open(self.path, 'w')
+                                op_proj = op_proj['data'].decode('utf-8')
+                                save_proj.write(op_proj)
+
+                            elif valuess.endswith('.json'):
+
+                                op_hash = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                save_hash = open(pathH, 'w')
+                                save_hash.write(save_hash)
+
+
+                            else:
+
+
                                 op_layer = gws_api_call(self.hostname,
                                                         'fsRead',
                                                         {'path': valuess},
@@ -471,14 +497,6 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                 save_layer = open(pathh, 'w')
                                 op_layer = op_layer['data'].decode('utf-8')
                                 save_layer.write(op_layer)
-
-                            else:
-                                op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
-                                #self.path = os.path.join(self.td, self.projekt + '.qgs')
-                                self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
-                                save_proj = open(self.path, 'w')
-                                op_proj = op_proj['data'].decode('utf-8')
-                                save_proj.write(op_proj)
 
                         else:
                             pass
@@ -560,6 +578,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         '''
         #pb
         #self.countChanged.emit(5)
+
         if qgis.core.QgsProject.instance().crs().authid()[:4] == 'EPSG':
             if qgis.core.QgsProject.instance().crs().mapUnits() == 0:
 
@@ -591,13 +610,15 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 #proj_dir = tempfile.mkdtemp()
                 pathlib.Path(self.projectFolder, self.title).mkdir(parents=True, exist_ok=True)
                 proj_dir = os.path.join(self.projectFolder, self.title)
-                
 
+                hashListServer = self.H.load_hash_list(self.hostname, self.auth, self.title)
+                print("hier :", hashListServer)
 
                 change_layer_source = []
                 changeMemoryLayers = []
                 excludeLayers = []
                 tileLayers = {}
+                hashList = {}
 
                 #pb
                 # self.countChanged.emit(15)
@@ -608,16 +629,23 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                                                         + layer.name()
                                                                         + " vor.")'''
 
-                        qgis.core.QgsVectorFileWriter.writeAsVectorFormat(layer, 
+                        file_path = os.path.join(proj_dir, layer.name() + '.geojson')
+
+                        """qgis.core.QgsVectorFileWriter.writeAsVectorFormat(layer, 
                                                                             os.path.join(proj_dir,
                                                                                         layer.name()
                                                                                         + '.geojson'),
                                                                             'utf-8',
+                                                                            driverName = 'GeoJson')"""
+                        qgis.core.QgsVectorFileWriter.writeAsVectorFormat(layer, 
+                                                                            file_path,
+                                                                            'utf-8',
                                                                             driverName = 'GeoJson')
 
-                        lay_stor = os.path.getsize(os.path.join(proj_dir,
+                        """lay_stor = os.path.getsize(os.path.join(proj_dir,
                                                                 layer.name() 
-                                                                + '.geojson'))
+                                                                + '.geojson'))"""
+                        lay_stor = os.path.getsize(file_path)
                         
                         if lay_stor < 20000000:
                             change_layer_source.append(layer.id())
@@ -628,18 +656,35 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             #self.uLE.start()
                             #self.uLE.run(proj_dir, layer.name(), self.hostname, self.title, self.auth)
                             #self.countChanged.emit(25)
+
+                            #buildHash = gbd_manager_hash.build_hash(path=file_path)
+                            #hashList[layer.id()] = buildHash
+
                             with open(os.path.join(proj_dir, layer.name() + '.geojson'), 'rb') as fp:
                                 data = fp.read()
-                                answ = gws_api_call(
-                                    self.hostname,
-                                    'fsWrite',
-                                    {'path': '/'
-                                    + self.title
-                                    + '/'
-                                    + layer.name()
-                                    + '.geojson',
-                                    'data': data},
-                                    auth = self.auth )
+
+                                buildHash, hashStatus = self.H.build_hash(data, hashListServer, layer.id())
+                                print('buildHash: ',buildHash)
+                                print('hashStatus: ',hashStatus)
+
+                                if hashStatus is not None:
+                                    print('layer neu gesendet')
+                                    answ = gws_api_call(
+                                        self.hostname,
+                                        'fsWrite',
+                                        {'path': '/'
+                                        + self.title
+                                        + '/'
+                                        + layer.name()
+                                        + '.geojson',
+                                        'data': data},
+                                        auth = self.auth )
+
+                                    hashList[layer.id()] = buildHash
+
+                                else:
+                                    print('layer passt wie er ist')
+                                    hashList[layer.id()] = buildHash
 
                             #pb
                             # self.countChanged.emit(75)
@@ -667,6 +712,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             tileLayers[layer.name()] = url
                     else:
                         pass
+                
+                self.H.save_hash_list(self.hostname, self.auth, self.title, hashList, proj_dir)
 
                 '''self.iface.mainWindow().statusBar().showMessage("Erstelle die Konfiguration.")'''
                 qgis.core.QgsProject.instance().write(os.path.join(proj_dir, self.title + '.qgs'))

@@ -453,8 +453,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         if self.projekt:
             
-            if os.path.isfile(os.path.join(self.projectFolder, self.project, 'hash_list.json')):
-                serverHashList = self.H.load_hash_list(self.hostname, self.auth, self.title)
+            #if os.path.isfile(os.path.join(self.projectFolder, self.project, 'hash_list.json')):
+            #    serverHashList = self.H.load_hash_list(self.hostname, self.auth, self.title)
                 
 
             pathlib.Path(self.projectFolder, self.projekt).mkdir(parents=True, exist_ok=True)
@@ -477,12 +477,12 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                 op_proj = op_proj['data'].decode('utf-8')
                                 save_proj.write(op_proj)
 
-                            elif valuess.endswith('.json'):
+                            '''elif valuess.endswith('.json'):
 
                                 op_hash = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
                                 pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
                                 save_hash = open(pathH, 'w')
-                                save_hash.write(save_hash)
+                                save_hash.write(save_hash)'''
 
 
                             else:

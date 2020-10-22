@@ -11,6 +11,9 @@ class gbd_manager_hash():
 
     def load_hash_list(self, url, auth, title):
         '''load the hash list from the server'''
+        print('url: ', url)
+        print('auth: ', auth)
+        print('title: ', title)
         answ = gws_api_call(url,
                             'fsRead',
                             {'path': title + '/hash_list.json'},
@@ -26,7 +29,7 @@ class gbd_manager_hash():
             return(mydata)
         except KeyError:
             try:
-                answ['error']
+                #answ['error']
                 print('nicht vorhanden')
                 return(None)
             except:
@@ -41,12 +44,12 @@ class gbd_manager_hash():
         if hashList is not None:
             if lay_id in hashList:
                 print('layer schon bekannt')
-                if hashList[lay_id] == m:
+                if hashList[lay_id][0] == m:
                     print('nicht verändert')
                     return(m, None)
                 else:
-                    return(m, True)
                     print('verändert')
+                    return(m, True)
             else:
                 return(m, True)
         else:

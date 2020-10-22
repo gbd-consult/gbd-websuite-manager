@@ -452,54 +452,161 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         #    pass
 
         if self.projekt:
-            
-            #if os.path.isfile(os.path.join(self.projectFolder, self.project, 'hash_list.json')):
-            #    serverHashList = self.H.load_hash_list(self.hostname, self.auth, self.title)
-                
 
             pathlib.Path(self.projectFolder, self.projekt).mkdir(parents=True, exist_ok=True)
-            #self.td = tempfile.mkdtemp()
-            answ = gws_api_call(self.hostname,
-                                'fsList',
-                                {}, 
-                                self.auth)
 
-            for key, value in answ.items():
-                for values in value:
-                    for keys, valuess in values.items():
-                        if valuess.startswith(str(self.projekt + '/')):
-                            if valuess.endswith('.qgs'):
+            if os.path.isfile(os.path.join(self.projectFolder, self.projekt, 'hash_list.json')):
+                serverHashList = self.H.load_hash_list(self.hostname, self.auth, self.projekt)
+                print('Server: ',serverHashList)
 
-                                op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
-                                #self.path = os.path.join(self.td, self.projekt + '.qgs')
-                                self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
-                                save_proj = open(self.path, 'w')
-                                op_proj = op_proj['data'].decode('utf-8')
-                                save_proj.write(op_proj)
+                with open (os.path.join(self.projectFolder, self.projekt, 'hash_list.json')) as fp:
+                    localHashList = json.load(fp)
+                    print('local: ',localHashList)
 
-                            '''elif valuess.endswith('.json'):
+                downloadLayer = []
 
-                                op_hash = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
-                                pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
-                                save_hash = open(pathH, 'w')
-                                save_hash.write(save_hash)'''
-
-
+                try:
+                    for key in serverHashList.keys():
+                        if key in localHashList.keys():
+                            if serverHashList[key][0] == localHashList[key][0]:
+                                pass
                             else:
-
-
-                                op_layer = gws_api_call(self.hostname,
-                                                        'fsRead',
-                                                        {'path': valuess},
-                                                        self.auth)
-                                #pathh = os.path.join(self.td, valuess.split('/')[1])
-                                pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
-                                save_layer = open(pathh, 'w')
-                                op_layer = op_layer['data'].decode('utf-8')
-                                save_layer.write(op_layer)
+                                '''layer downloaden?!'''
+                                downloadLayer.append(serverHashList[key][1])
 
                         else:
-                            pass
+                            '''layer downloaden!'''
+                            downloadLayer.append(serverHashList[key][1])
+
+                    answ = gws_api_call(self.hostname,
+                                        'fsList',
+                                        {},
+                                        self.auth)
+
+                    print(answ)
+
+                    for key, value in answ.items():
+                        for values in value:
+                            for keys, valuess in values.items():
+                                if valuess.startswith(str(self.projekt + '/')):
+                                    if valuess.endswith('.qgs'):
+                                        op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                        #self.path = os.path.join(self.td, self.projekt + '.qgs')
+                                        self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
+                                        save_proj = open(self.path, 'w')
+                                        op_proj = op_proj['data'].decode('utf-8')
+                                        save_proj.write(op_proj)
+
+                                    elif valuess.endswith('.json'):
+                                        op_hash = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                        pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                        save_hash = open(pathH, 'w')
+                                        op_hash = op_hash['data'].decode('utf-8')
+                                        save_hash.write(op_hash)
+
+                                    else:
+                                        for downlay in downloadLayer:
+                                            if valuess in downlay:
+                                                op_layer = gws_api_call(self.hostname,
+                                                                        'fsRead',
+                                                                        {'path': valuess},
+                                                                        self.auth)
+                                                #pathh = os.path.join(self.td, valuess.split('/')[1])
+                                                pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                                save_layer = open(pathh, 'w')
+                                                op_layer = op_layer['data'].decode('utf-8')
+                                                save_layer.write(op_layer)
+                                            else:
+                                                pass
+
+                                else:
+                                    pass
+
+                except NameError:
+                    '''hier wird alles heruntergeladen?!'''
+
+                    answ = gws_api_call(self.hostname,
+                                    'fsList',
+                                    {},
+                                    self.auth)
+
+                    print(answ)
+
+                    for key, value in answ.items():
+                        for values in value:
+                            for keys, valuess in values.items():
+                                if valuess.startswith(str(self.projekt + '/')):
+                                    if valuess.endswith('.qgs'):
+                                        op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                        #self.path = os.path.join(self.td, self.projekt + '.qgs')
+                                        self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
+                                        save_proj = open(self.path, 'w')
+                                        op_proj = op_proj['data'].decode('utf-8')
+                                        save_proj.write(op_proj)
+
+                                    elif valuess.endswith('.json'):
+                                        op_hash = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                        pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                        save_hash = open(pathH, 'w')
+                                        op_hash = op_hash['data'].decode('utf-8')
+                                        save_hash.write(op_hash)
+
+                                    else:
+                                        op_layer = gws_api_call(self.hostname,
+                                                                'fsRead',
+                                                                {'path': valuess},
+                                                                self.auth)
+                                        #pathh = os.path.join(self.td, valuess.split('/')[1])
+                                        pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                        save_layer = open(pathh, 'w')
+                                        op_layer = op_layer['data'].decode('utf-8')
+                                        save_layer.write(op_layer)
+
+                                else:
+                                    pass
+
+
+            else:
+
+                answ = gws_api_call(self.hostname,
+                                    'fsList',
+                                    {},
+                                    self.auth)
+
+                print(answ)
+
+                for key, value in answ.items():
+                    for values in value:
+                        for keys, valuess in values.items():
+                            if valuess.startswith(str(self.projekt + '/')):
+                                if valuess.endswith('.qgs'):
+                                    op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                    #self.path = os.path.join(self.td, self.projekt + '.qgs')
+                                    self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
+                                    save_proj = open(self.path, 'w')
+                                    op_proj = op_proj['data'].decode('utf-8')
+                                    save_proj.write(op_proj)
+
+                                elif valuess.endswith('.json'):
+                                    op_hash = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                    pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                    save_hash = open(pathH, 'w')
+                                    op_hash = op_hash['data'].decode('utf-8')
+                                    save_hash.write(op_hash)
+
+                                else:
+                                    op_layer = gws_api_call(self.hostname,
+                                                            'fsRead',
+                                                            {'path': valuess},
+                                                            self.auth)
+                                    #pathh = os.path.join(self.td, valuess.split('/')[1])
+                                    pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                    save_layer = open(pathh, 'w')
+                                    op_layer = op_layer['data'].decode('utf-8')
+                                    save_layer.write(op_layer)
+
+                            else:
+                                pass
 
         else:
             self.iface.messageBar().pushCritical(self.tr('Laden fehlgeschlagen'),
@@ -680,11 +787,11 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                         'data': data},
                                         auth = self.auth )
 
-                                    hashList[layer.id()] = buildHash
+                                    hashList[layer.id()] = (buildHash, layer.name())
 
                                 else:
                                     print('layer passt wie er ist')
-                                    hashList[layer.id()] = buildHash
+                                    hashList[layer.id()] = (buildHash, layer.name())
 
                             #pb
                             # self.countChanged.emit(75)

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="en_US" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.1" language="en_US">
 <context>
     <name>EditButtonWidget</name>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="844"/>
-        <source>&#xc3;&#x96;ffne die WebSuite</source>
+        <source>Ãffne die WebSuite</source>
         <translation>Open the Website</translation>
     </message>
     <message>
@@ -113,12 +114,12 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="297"/>
-        <source>Ihre Conig-Datei enth&#xc3;&#xa4;lt nicht die ben&#xc3;&#xb6;tigten Informationen oder ist besch&#xc3;&#xa4;digt!</source>
+        <source>Ihre Conig-Datei enthÃ¤lt nicht die benÃ¶tigten Informationen oder ist beschÃ¤digt!</source>
         <translation>Your Config-File does not contain the required Informations or is damaged!</translation>
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="302"/>
-        <source>Bitte eine .json Datei ausw&#xc3;&#xa4;hlen!</source>
+        <source>Bitte eine .json Datei auswÃ¤hlen!</source>
         <translation>Please select a .json File!</translation>
     </message>
     <message>
@@ -138,12 +139,12 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="377"/>
-        <source>Bitte geben Sie einen Titel f&#xc3;&#xbc;r das Projekt an!</source>
+        <source>Bitte geben Sie einen Titel fÃ¼r das Projekt an!</source>
         <translation>Please supply a Title for the Project!</translation>
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="397"/>
-        <source>Projekt l&#xc3;&#xb6;schen</source>
+        <source>Projekt lÃ¶schen</source>
         <translation>Delete Project</translation>
     </message>
     <message>
@@ -153,12 +154,12 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="397"/>
-        <source>&quot; wirklich gel&#xc3;&#xb6;scht werden?</source>
+        <source>&quot; wirklich gelÃ¶scht werden?</source>
         <translation>&quot;  really be deleted?</translation>
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="426"/>
-        <source>Erfolgreich gel&#xc3;&#xb6;scht!</source>
+        <source>Erfolgreich gelÃ¶scht!</source>
         <translation>Successful deleted!</translation>
     </message>
     <message>
@@ -168,7 +169,7 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="430"/>
-        <source>L&#xc3;&#xb6;schen fehlgeschlagen!</source>
+        <source>LÃ¶schen fehlgeschlagen!</source>
         <translation>Deletion failed!</translation>
     </message>
     <message>
@@ -178,7 +179,7 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="430"/>
-        <source> konnte nicht gel&#xc3;&#xb6;scht werden.</source>
+        <source> konnte nicht gelÃ¶scht werden.</source>
         <translation> couldn&apos;t be deleted.</translation>
     </message>
     <message>
@@ -188,7 +189,7 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="439"/>
-        <source>Bitte w&#xc3;&#xa4;hlen Sie ein Projekt aus das sie l&#xc3;&#xb6;schen m&#xc3;&#xb6;chten.</source>
+        <source>Bitte wÃ¤hlen Sie ein Projekt aus das sie lÃ¶schen mÃ¶chten.</source>
         <translation>Please select the project you want to delete.</translation>
     </message>
     <message>
@@ -198,7 +199,7 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="487"/>
-        <source>Bitte w&#xc3;&#xa4;hlen Sie ein Projekt aus!</source>
+        <source>Bitte wÃ¤hlen Sie ein Projekt aus!</source>
         <translation>Please select a project!</translation>
     </message>
     <message>
@@ -208,7 +209,7 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="544"/>
-        <source>Sie k&#xc3;&#xb6;nnen es jetzt unter &quot;</source>
+        <source>Sie kÃ¶nnen es jetzt unter &quot;</source>
         <translation>Your project is now available under &quot;</translation>
     </message>
     <message>
@@ -228,12 +229,12 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="652"/>
-        <source>Layer nicht hinzugef&#xc3;&#xbc;gt</source>
+        <source>Layer nicht hinzugefÃ¼gt</source>
         <translation>Your Layer</translation>
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="652"/>
-        <source> ist gr&#xc3;&#xb6;&#xc3;&#x9f;er als 25 MB.</source>
+        <source> ist grÃ¶Ãer als 25 MB.</source>
         <translation> wasn&apos;t added, because it storage space is bigger than 25 MB.</translation>
     </message>
     <message>
@@ -258,12 +259,12 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="772"/>
-        <source>Bitte w&#xc3;&#xa4;hlen Sie ein Koordinatensystem aus, das auf Meter als Einheit nutzt.</source>
+        <source>Bitte wÃ¤hlen Sie ein Koordinatensystem aus, das auf Meter als Einheit nutzt.</source>
         <translation>Please select a coordinate system that uses meter as unit.</translation>
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget.py" line="775"/>
-        <source>Bitte w&#xc3;&#xa4;hlen sie ein EPSG-Koordinatensystem aus.</source>
+        <source>Bitte wÃ¤hlen sie ein EPSG-Koordinatensystem aus.</source>
         <translation>Please select a EPSG-coordinate system.</translation>
     </message>
 </context>
@@ -291,12 +292,12 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget_base.ui" line="101"/>
-        <source>ausgew&#xc3;&#xa4;hltes Projekt l&#xc3;&#xb6;schen</source>
+        <source>ausgewÃ¤hltes Projekt lÃ¶schen</source>
         <translation>Delete selected Project</translation>
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget_base.ui" line="133"/>
-        <source>ausgew&#xc3;&#xa4;hltes Projekt anzeigen</source>
+        <source>ausgewÃ¤hltes Projekt anzeigen</source>
         <translation>Show selected Project</translation>
     </message>
     <message>
@@ -322,7 +323,7 @@
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget_base.ui" line="231"/>
         <source>Titel:</source>
-        <translation></translation>
+        <translation>Title:</translation>
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget_base.ui" line="259"/>
@@ -331,7 +332,7 @@
     </message>
     <message>
         <location filename="../gbd_websuite_plugin_dockwidget_base.ui" line="296"/>
-        <source>aktuelles Projekt hinzuf&#xc3;&#xbc;gen</source>
+        <source>aktuelles Projekt hinzufÃ¼gen</source>
         <translation>Add current Project</translation>
     </message>
     <message>

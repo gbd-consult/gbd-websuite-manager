@@ -115,15 +115,12 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.font = None
         self.projectFolder = None
 
-        # tempfile
-        self.td = None
-
         # connect functions to buttons
         self.button_save.clicked.connect(self.button_add_Project)
         self.button_delete_proj.clicked.connect(self.delete_Project)
         self.button_load_proj.clicked.connect(self.load_Project)
         self.button_load_proj.clicked.connect(self.open_Project)
-        #self.button_help.clicked.connect(self.open_Help)
+        self.button_help.clicked.connect(self.open_Help)
         self.button_options.clicked.connect(self.doButtonOptions)
 
         # connect functions to signals
@@ -564,9 +561,9 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                         #pathh = os.path.join(self.td, valuess.split('/')[1])
                                         pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
                                         with open(pathh, 'w') as save_layer:
-                                                    #save_layer = open(pathh, 'w')
-                                                    op_layer = op_layer['data'].decode('utf-8')
-                                                    save_layer.write(op_layer)
+                                            #save_layer = open(pathh, 'w')
+                                            op_layer = op_layer['data'].decode('utf-8')
+                                            save_layer.write(op_layer)
 
                                 else:
                                     pass
@@ -590,17 +587,17 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                     #self.path = os.path.join(self.td, self.projekt + '.qgs')
                                     self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
                                     with open(self.path, 'w') as save_proj:
-                                            #save_proj = open(self.path, 'w')
-                                            op_proj = op_proj['data'].decode('utf-8')
-                                            save_proj.write(op_proj)
+                                        #save_proj = open(self.path, 'w')
+                                        op_proj = op_proj['data'].decode('utf-8')
+                                        save_proj.write(op_proj)
 
                                 elif valuess.endswith('.json'):
                                     op_hash = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
                                     pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
                                     with open(pathH, 'w') as save_hash:
-                                            #save_hash = open(pathH, 'w')
-                                            op_hash = op_hash['data'].decode('utf-8')
-                                            save_hash.write(op_hash)
+                                        #save_hash = open(pathH, 'w')
+                                        op_hash = op_hash['data'].decode('utf-8')
+                                        save_hash.write(op_hash)
 
                                 else:
                                     op_layer = gws_api_call(self.hostname,
@@ -610,9 +607,9 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                     #pathh = os.path.join(self.td, valuess.split('/')[1])
                                     pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
                                     with open(pathh, 'w') as save_layer:
-                                                    #save_layer = open(pathh, 'w')
-                                                    op_layer = op_layer['data'].decode('utf-8')
-                                                    save_layer.write(op_layer)
+                                        #save_layer = open(pathh, 'w')
+                                        op_layer = op_layer['data'].decode('utf-8')
+                                        save_layer.write(op_layer)
 
                             else:
                                 pass

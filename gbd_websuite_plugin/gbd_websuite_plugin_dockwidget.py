@@ -877,7 +877,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         map.crs """ + '"' + proj_crs + '"' + """
                         map.center [""" + center + """]
                         map.zoom.initScale """ + init_scale + """
-                        map.zoom.scales [1000000 500000 250000 150000 70000 50000 25000 10000 5000 2500 1000]
+                        map.zoom.scales [1000000 500000 250000 150000 70000 50000 25000 10000 5000 2500 1000 500 250]
                         map.extentBuffer {{5000}}   
                         map.extent """ + extentGermany + """
 

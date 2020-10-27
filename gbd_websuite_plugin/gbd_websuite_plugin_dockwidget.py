@@ -742,7 +742,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                                                         + layer.name()
                                                                         + " vor.")'''
 
-                        file_path = os.path.join(proj_dir, layer.name() + '.geojson')
+                        #file_path = os.path.join(proj_dir, layer.name() + '.geojson')
+                        file_path = os.path.join(proj_dir, layer.id() + '.geojson')
 
                         """qgis.core.QgsVectorFileWriter.writeAsVectorFormat(layer, 
                                                                             os.path.join(proj_dir,
@@ -774,7 +775,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         #buildHash = gbd_manager_hash.build_hash(path=file_path)
                         #hashList[layer.id()] = buildHash
 
-                        with open(os.path.join(proj_dir, layer.name() + '.geojson'), 'rb') as fp:
+                        #with open(os.path.join(proj_dir, layer.name() + '.geojson'), 'rb') as fp:
+                        with open(os.path.join(proj_dir, layer.id() + '.geojson'), 'rb') as fp:
                             data = fp.read()
 
                             buildHash, hashStatus = self.H.build_hash(data, hashListServer, layer.id())
@@ -789,7 +791,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                     {'path': '/'
                                     + self.title
                                     + '/'
-                                    + layer.name()
+                                    #+ layer.name()
+                                    + layer.id()
                                     + '.geojson',
                                     'data': data},
                                     auth = self.auth )
@@ -838,8 +841,9 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     id = maplayer.find('id')
                     if id.text in change_layer_source:
                         datasource = maplayer.find('datasource')
-                        name = maplayer.find('layername')
-                        datasource.text = './' + name.text + '.geojson'
+                        #name = maplayer.find('layername')
+                        #datasource.text = './' + name.text + '.geojson'
+                        datasource.text = './' + id.text + '.geojson'
 
                     if id.text in changeMemoryLayers:
                         pe = maplayer.find('provider')

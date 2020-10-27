@@ -760,7 +760,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                                                 + '.geojson'))"""
                         lay_stor = os.path.getsize(file_path)
                         
-                        if lay_stor < 20000000:
+                        #if lay_stor < 20 000 000:
+                        if lay_star < 1000000000:
                             change_layer_source.append(layer.id())
                             
                             #pb

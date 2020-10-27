@@ -758,47 +758,47 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         """lay_stor = os.path.getsize(os.path.join(proj_dir,
                                                                 layer.name() 
                                                                 + '.geojson'))"""
-                        lay_stor = os.path.getsize(file_path)
+                        #lay_stor = os.path.getsize(file_path)
                         
                         #if lay_stor < 20 000 000:
-                        if lay_star < 1000000000:
-                            change_layer_source.append(layer.id())
-                            
-                            #pb
-                            #self.uLE = uploadLayersExternal(proj_dir, layer.name(), self.hostname, self.title, self.auth)
-                            #self.uLE.countChanged.connect(self.onCountChanged)
-                            #self.uLE.start()
-                            #self.uLE.run(proj_dir, layer.name(), self.hostname, self.title, self.auth)
-                            #self.countChanged.emit(25)
+                        #if lay_star < 1000000000:
+                        change_layer_source.append(layer.id())
+                        
+                        #pb
+                        #self.uLE = uploadLayersExternal(proj_dir, layer.name(), self.hostname, self.title, self.auth)
+                        #self.uLE.countChanged.connect(self.onCountChanged)
+                        #self.uLE.start()
+                        #self.uLE.run(proj_dir, layer.name(), self.hostname, self.title, self.auth)
+                        #self.countChanged.emit(25)
 
-                            #buildHash = gbd_manager_hash.build_hash(path=file_path)
-                            #hashList[layer.id()] = buildHash
+                        #buildHash = gbd_manager_hash.build_hash(path=file_path)
+                        #hashList[layer.id()] = buildHash
 
-                            with open(os.path.join(proj_dir, layer.name() + '.geojson'), 'rb') as fp:
-                                data = fp.read()
+                        with open(os.path.join(proj_dir, layer.name() + '.geojson'), 'rb') as fp:
+                            data = fp.read()
 
-                                buildHash, hashStatus = self.H.build_hash(data, hashListServer, layer.id())
-                                print('buildHash: ',buildHash)
-                                print('hashStatus: ',hashStatus)
+                            buildHash, hashStatus = self.H.build_hash(data, hashListServer, layer.id())
+                            print('buildHash: ',buildHash)
+                            print('hashStatus: ',hashStatus)
 
-                                if hashStatus is not None:
-                                    print('layer neu gesendet')
-                                    answ = gws_api_call(
-                                        self.hostname,
-                                        'fsWrite',
-                                        {'path': '/'
-                                        + self.title
-                                        + '/'
-                                        + layer.name()
-                                        + '.geojson',
-                                        'data': data},
-                                        auth = self.auth )
+                            if hashStatus is not None:
+                                print('layer neu gesendet')
+                                answ = gws_api_call(
+                                    self.hostname,
+                                    'fsWrite',
+                                    {'path': '/'
+                                    + self.title
+                                    + '/'
+                                    + layer.name()
+                                    + '.geojson',
+                                    'data': data},
+                                    auth = self.auth )
 
-                                    hashList[layer.id()] = (buildHash, layer.name())
+                                hashList[layer.id()] = (buildHash, layer.name())
 
-                                else:
-                                    print('layer passt wie er ist')
-                                    hashList[layer.id()] = (buildHash, layer.name())
+                            else:
+                                print('layer passt wie er ist')
+                                hashList[layer.id()] = (buildHash, layer.name())
 
                             #pb
                             # self.countChanged.emit(75)
@@ -806,11 +806,11 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             if layer.providerType() == 'memory':
                                 changeMemoryLayers.append(layer.id())
 
-                        else:
+                        '''else:
                             excludeLayers.append(layer.name())
                             self.iface.messageBar().pushCritical(self.tr('Layer nicht hinzugefügt'),
                                                                 layer.name()
-                                                                + self.tr(' ist größer als 25 MB.'))
+                                                                + self.tr(' ist größer als 25 MB.'))'''
 
                     elif layer.providerType() == 'gdal':
                         excludeLayers.append(layer.name())

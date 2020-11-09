@@ -47,7 +47,7 @@ import pyproj
 
 # python bindings for QT application Framework
 from qgis.PyQt import QtGui, QtWidgets, uic
-from qgis.PyQt.QtCore import pyqtSignal, QFileInfo, QThread
+from qgis.PyQt.QtCore import pyqtSignal, QFileInfo, QThread, Qt
 
 # Python QGIS API
 from qgis.utils import iface
@@ -695,6 +695,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if qgis.core.QgsProject.instance().crs().authid()[:4] == 'EPSG':
             if qgis.core.QgsProject.instance().crs().mapUnits() == 0:
 
+                QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
+
                 proj_crs = qgis.core.QgsProject.instance().crs().authid()
 
                 if proj_crs != 'EPSG:3857':
@@ -855,6 +857,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
                 for templayer in root.iter('layer-tree-layer'):
                     id = templayer.attrib['id']
+                    if id in change_layer_source:
+                        templayer.attrib['source'] = './' + id + '.geojson'
                     if id in changeMemoryLayers:
                         templayer.attrib['providerKey'] = 'ogr'
 
@@ -932,6 +936,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
                 #pb
                 # self.countChanged.emit(100)
+
+                QtWidgets.QApplication.restoreOverrideCursor()
 
             else:
                 self.iface.messageBar().pushCritical(self.tr('CRS Fehler!'), self.tr('Bitte wählen Sie ein Koordinatensystem aus, das auf Meter als Einheit nutzt.'))

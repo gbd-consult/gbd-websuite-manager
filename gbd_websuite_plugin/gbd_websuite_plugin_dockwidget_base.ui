@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>398</width>
-    <height>470</height>
+    <height>508</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>398</width>
-    <height>470</height>
+    <height>508</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -26,143 +26,8 @@
    <string>GBD WebSuite Manager</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="0">
-     <widget class="QGroupBox" name="liste_projekte">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="title">
-       <string>Vorhandene Projekte verwalten</string>
-      </property>
-      <widget class="QTableWidget" name="table_proj">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="geometry">
-        <rect>
-         <x>5</x>
-         <y>25</y>
-         <width>372</width>
-         <height>205</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>200</width>
-         <height>180</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>498</width>
-         <height>250</height>
-        </size>
-       </property>
-       <property name="sizeAdjustPolicy">
-        <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
-       </property>
-       <property name="editTriggers">
-        <set>QAbstractItemView::NoEditTriggers</set>
-       </property>
-       <column>
-        <property name="text">
-         <string>Titel</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>Aktionen</string>
-        </property>
-       </column>
-      </widget>
-      <widget class="QPushButton" name="button_delete_proj">
-       <property name="geometry">
-        <rect>
-         <x>322</x>
-         <y>235</y>
-         <width>50</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>33</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>ausgewähltes Projekt löschen</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>:/plugins/gbd_websuite_plugin/icons/mActionTrash.png</normaloff>:/plugins/gbd_websuite_plugin/icons/mActionTrash.png</iconset>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="button_load_proj">
-       <property name="geometry">
-        <rect>
-         <x>260</x>
-         <y>235</y>
-         <width>50</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>33</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>ausgewähltes Projekt anzeigen</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>:/plugins/gbd_websuite_plugin/icons/mActionFileOpen.png</normaloff>:/plugins/gbd_websuite_plugin/icons/mActionFileOpen.png</iconset>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="button_help">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>235</y>
-         <width>50</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string>Hilfe</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>:/plugins/gbd_websuite_plugin/icons/mActionHelpContents.png</normaloff>:/plugins/gbd_websuite_plugin/icons/mActionHelpContents.png</iconset>
-       </property>
-      </widget>
-     </widget>
-    </item>
-    <item row="0" column="0">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
      <widget class="QGroupBox" name="groupBox">
       <property name="enabled">
        <bool>true</bool>
@@ -174,34 +39,16 @@
        </size>
       </property>
       <property name="title">
-       <string>Anmeldung</string>
+       <string>Authentifizierung</string>
       </property>
-      <widget class="QLabel" name="label_5">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>22</y>
-         <width>251</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Angemeldet als:</string>
-       </property>
-      </widget>
-      <widget class="QgsExternalResourceWidget" name="config_file">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>51</y>
-         <width>341</width>
-         <height>27</height>
-        </rect>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QgsAuthConfigSelect" name="authcfg_select"/>
+       </item>
+      </layout>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item>
      <widget class="QGroupBox" name="aktuelles_projekt">
       <property name="enabled">
        <bool>false</bool>
@@ -218,144 +65,239 @@
       <property name="title">
        <string>Aktuelles Projekt</string>
       </property>
-      <widget class="QLabel" name="label_8">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>30</y>
-         <width>81</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Titel:</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="data_projekt">
-       <property name="geometry">
-        <rect>
-         <x>51</x>
-         <y>30</y>
-         <width>201</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-         <weight>50</weight>
-         <italic>true</italic>
-         <bold>false</bold>
-         <kerning>false</kerning>
-        </font>
-       </property>
-       <property name="toolTip">
-        <string>Titel des Projektes</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="readOnly">
-        <bool>false</bool>
-       </property>
-       <property name="placeholderText">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="button_save">
-       <property name="geometry">
-        <rect>
-         <x>322</x>
-         <y>30</y>
-         <width>50</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>33</height>
-        </size>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>aktuelles Projekt hinzufügen</string>
-       </property>
-       <property name="whatsThis">
-        <string>blub</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">image: url(:/plugins/gbd_websuite_plugin/icons/mActionFileOpen.png);</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>:/plugins/gbd_websuite_plugin/icons/mActionAdd.svg</normaloff>:/plugins/gbd_websuite_plugin/icons/mActionAdd.svg</iconset>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="button_options">
-       <property name="geometry">
-        <rect>
-         <x>260</x>
-         <y>30</y>
-         <width>50</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>33</height>
-        </size>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>Erweiterte Einstellungen</string>
-       </property>
-       <property name="whatsThis">
-        <string>Einstellungen</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">image: url(:/plugins/gbd_websuite_plugin/icons/options.png);</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>:/plugins/gbd_websuite_plugin/icons/options.png</normaloff>:/plugins/gbd_websuite_plugin/icons/options.png</iconset>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Titel:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="data_projekt">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>true</italic>
+           <bold>false</bold>
+           <kerning>false</kerning>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Titel des Projektes</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
+         <property name="placeholderText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_options">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>33</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string>Erweiterte Einstellungen</string>
+         </property>
+         <property name="whatsThis">
+          <string>Einstellungen</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">image: url(:/plugins/gbd_websuite_plugin/icons/options.png);</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>:/plugins/gbd_websuite_plugin/icons/options.png</normaloff>:/plugins/gbd_websuite_plugin/icons/options.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_save">
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>33</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="toolTip">
+          <string>aktuelles Projekt hinzufügen</string>
+         </property>
+         <property name="whatsThis">
+          <string>blub</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">image: url(:/plugins/gbd_websuite_plugin/icons/mActionFileOpen.png);</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>:/plugins/gbd_websuite_plugin/icons/mActionAdd.svg</normaloff>:/plugins/gbd_websuite_plugin/icons/mActionAdd.svg</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="liste_projekte">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>Vorhandene Projekte verwalten</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QTableWidget" name="table_proj">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>180</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>498</width>
+           <height>250</height>
+          </size>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <column>
+          <property name="text">
+           <string>Titel</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Aktionen</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QPushButton" name="button_help">
+           <property name="toolTip">
+            <string>Hilfe</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/plugins/gbd_websuite_plugin/icons/mActionHelpContents.png</normaloff>:/plugins/gbd_websuite_plugin/icons/mActionHelpContents.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="button_delete_proj">
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>33</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>ausgewähltes Projekt löschen</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/plugins/gbd_websuite_plugin/icons/mActionTrash.png</normaloff>:/plugins/gbd_websuite_plugin/icons/mActionTrash.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="button_load_proj">
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>33</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>ausgewähltes Projekt anzeigen</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/plugins/gbd_websuite_plugin/icons/mActionFileOpen.png</normaloff>:/plugins/gbd_websuite_plugin/icons/mActionFileOpen.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -363,9 +305,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QgsExternalResourceWidget</class>
+   <class>QgsAuthConfigSelect</class>
    <extends>QWidget</extends>
-   <header>qgsexternalresourcewidget.h</header>
+   <header>qgsauthconfigselect.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

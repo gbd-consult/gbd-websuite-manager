@@ -46,19 +46,35 @@ import pathlib
 import pyproj
 
 # python bindings for QT application Framework
-from qgis.PyQt import QtGui, QtWidgets, uic
-from qgis.PyQt.QtCore import pyqtSignal, QFileInfo, QThread, Qt
+from qgis.PyQt import QtGui, uic
+from qgis.PyQt.QtWidgets import (
+    QDockWidget,
+    QMessageBox,
+    QTableWidgetItem,
+    QWidget, QApplication,
+    QHBoxLayout,
+    QPushButton,
+    QTextBrowser,
+    QLabel,
+    QMainWindow
+)
+from qgis.PyQt.QtCore import pyqtSignal, QFileInfo, QThread, Qt, QUrl
 
 # Python QGIS API
 from qgis.utils import iface
-import qgis.core
+from qgis.core import (
+    QgsApplication,
+    QgsProject,
+    QgsVectorFileWriter,
+    QgsAuthMethodConfig
+)
 
 ###
 # local imports
 ###
 from .gws_api import gws_api_call, as_uid
 from .gws_password import encode
-from .gbd_hash import gbd_manager_hash
+from .gbd_hash import GbdManagerHash
 #from gbd_modules import gws_api, gws_password
 
 from .dw_b_options import button_options
@@ -70,7 +86,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'gbd_websuite_plugin_dockwidget_base.ui'))
 
 
-class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
+class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
     closingPlugin = pyqtSignal()
     #pb
@@ -88,32 +104,39 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.iface = iface
 
         #hash
-        self.H = gbd_manager_hash()
-        #pb
-        # self.pB = progressBar()
+        self.hash_manager = GbdManagerHash()
 
-        #self.uLE = uploadLayersExternal()
+        # config
+        self.config = {}
+        self.authcfg = None
+        self.gws_url = None
 
-        # set path to a directory where projects are stores
-        # later that has to work automated
-        # variables that should come from
-        self.config = None
+        self.authcfg_select.selectedConfigIdChanged.connect(self.update_auth)
 
-        # variables
-        self.confPath = None
-        self.hostname = None
-        self.username = None
-        self.password = None
-        self.auth = None
+        self.config_path = os.path.join(
+            QgsApplication.qgisSettingsDirPath(),
+            'GBD_WebSuite',
+            'gws.json'
+        )
+        self.projectFolder = os.path.dirname(self.config_path)
+
+        if os.path.exists(self.config_path):
+            with open(self.config_path, 'r') as fp:
+                self.config = json.load(fp)
+        elif not os.path.exists(os.path.dirname(self.config_path)):
+            os.makedirs(os.path.dirname(self.config_path))
+
+        if self.config.get('authcfg'):
+            self.authcfg_select.setConfigId(self.config.get('authcfg'))
+        
+
         self.proj = None
-        self.authToken = None
         self.projekt = None
         self.title = None
         self.rowPosition = None
         self.path = None
         self.row = None
         self.font = None
-        self.projectFolder = None
 
         # connect functions to buttons
         self.button_save.clicked.connect(self.button_add_Project)
@@ -124,8 +147,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.button_options.clicked.connect(self.doButtonOptions)
 
         # connect functions to signals
-        qgis.core.QgsProject.instance().readProject.connect(self.project_Title_or_File)
-        qgis.core.QgsProject.instance().writeProject.connect(self.project_Title_or_File)
+        QgsProject.instance().readProject.connect(self.project_Title_or_File)
+        QgsProject.instance().writeProject.connect(self.project_Title_or_File)
         self.iface.newProjectCreated.connect(self.new_Project)
         self.table_proj.itemSelectionChanged.connect(self.get_row)
         #pb
@@ -161,7 +184,26 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         t.join()
         self.pB.progressBar.setValue(10)'''
 
-
+    def update_auth(self, authcfg):
+        """update the auth config."""
+        conf = QgsAuthMethodConfig()
+        QgsApplication.authManager().loadAuthenticationConfig(
+            authcfg, conf, True)
+        if conf.uri():
+            self.gws_url = QUrl(conf.uri())
+            self.authcfg = authcfg
+            self.config.update({
+                'authcfg': authcfg
+            })
+            with open(self.config_path, 'w') as fp:
+                json.dump(self.config, fp)
+            self.aktuelles_projekt.setEnabled(True)
+            self.liste_projekte.setEnabled(True)
+            self.table_proj.setEnabled(True)
+            self.project_Title_or_File()
+        else:
+            self.gws_url = None
+            self.authcfg = None
         
     def doButtonOptions(self):
 
@@ -174,144 +216,24 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.clear_Plugin()
         self.checkAuth()
 
-    def checkAuthLocal(self):
-
-        '''
-        Function to check for local saved login data.
-        '''
-
-        self.confPath = qgis.core.QgsApplication.qgisSettingsDirPath()
-        if os.path.exists(os.path.join(self.confPath, 'GBD_WebSuite')):
-            for file in os.listdir(os.path.join(self.confPath, 'GBD_WebSuite')):
-                if file == 'qgws-manager.json':
-                    self.config_file.setDocumentPath(os.path.join(self.confPath, 'GBD_WebSuite', file))
-                    self.checkAuth()
-                    self.config_file.valueChanged.connect(self.changedConfig)
-                else:
-                    self.config_file.valueChanged.connect(self.changedConfig)
-            else:
-                self.config_file.valueChanged.connect(self.changedConfig)
-        else:
-            self.config_file.valueChanged.connect(self.changedConfig)
-
-    def checkAuth(self):
+    def set_font(self):
 
         '''
         Function to start the Plugin.
-        Controlls if the config.json File is valid.
-        If the file is valid, the Plugin is enabled and existing projects are loaded from the server.
         '''
 
         f = self.iface.settingsMenu().font().toString().rsplit(",")[0]
         s = int(self.iface.settingsMenu().font().toString().rsplit(",")[1])
         self.font = QtGui.QFont(f, s)
 
-        self.config = self.config_file.documentPath()
-        if self.config:
-            try:
-                with open(self.config, 'r') as conf_file:
-                    data = json.load(conf_file)
-                    try:
-                        for p in data:
-                            self.username = p['user']
-                            self.password = p['password']
-                            self.hostname = p['hostname']
-                            if 'projectFolder' in p:
-                                self.projectFolder = p['projectFolder']
-                            else:
-                                self.projectFolder = os.path.join(self.confPath, 'GBD_WebSuite', 'projects')
-
-                            self.auth = (self.username, self.password)
-                            try:
-                                self.proj = gws_api_call(
-                                    self.hostname,
-                                    'fsList',
-                                    {},
-                                    auth=self.auth
-                                )
-
-                                if list(self.proj.keys())[0] != 'entries':
-                                    iface.messageBar().pushCritical(self.tr('Authentifizierung fehlgeschlagen'),
-                                                                    self.tr('Falsche Logindaten!'))
-
-                                else:
-                                    self.iface.messageBar().pushSuccess(self.tr('Login erfolgreich'),
-                                                                        self.tr('Sie sind jetzt als "')
-                                                                        + self.username
-                                                                        + self.tr(' auf dem Server: ')
-                                                                        + self.hostname
-                                                                        + self.tr('" angemeldet.'))
-
-                            except r.exceptions.SSLError:
-                                self.clear_Plugin()
-                                iface.messageBar().pushCritical(self.tr('GWS Fehler!'),
-                                                                self.tr('Das SSL-Zertifikat des Servers ist abgelaufen. Bitte kontaktieren Sie den Administrator.'))
-                                
-
-                            except:
-                                iface.messageBar().pushCritical(self.tr('GWS Fehler!'),
-                                                                self.tr('Konnte keine Verbindung zum Server herstellen.'))
-                                self.clear_Plugin()
-
-                            else:
-
-                                data = []
-
-                                for value in self.proj.values():
-                                    for i in value:
-                                        for projects in i.values():
-                                            if projects.endswith('.config.cx'):
-                                                temp_l = []
-                                                temp_l.append(projects[:-10])
-                                                temp_l.append(str(projects[:-10]))
-                                                data.append(temp_l)
-
-                                            else:
-                                                pass
-
-                                nb_row = len(data)
-                                nb_col = 2
-
-                                self.table_proj.setRowCount(nb_row)
-                                self.table_proj.setColumnCount(nb_col)
-
-                                for row in range(nb_row):
-                                    for col in range(nb_col):
-                                        item = QtWidgets.QTableWidgetItem(str(data[row][col]))
-                                        self.table_proj.setItem(row, 0, item)
-                                        self.table_proj.setCellWidget(row, 1, EditButtonWidget(row, item.text(), self.hostname, self.font))
-                                    
-                                self.table_proj.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-                                self.table_proj.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-                                self.label_5.setText(self.tr("Angemeldet als: ") + self.username)
-                                self.authToken = True
-                                
-                                if self.authToken:
-                                    self.aktuelles_projekt.setEnabled(True)
-                                    self.liste_projekte.setEnabled(True)
-                                    self.table_proj.setEnabled(True)
-                                    self.project_Title_or_File()
-
-                    except: 
-                        self.iface.messageBar().pushCritical(self.tr('Login fehlgeschlagen'),
-                                                            self.tr('Ihre Conig-Datei enthält nicht die benötigten Informationen oder ist beschädigt!'))
-                        self.clear_Plugin()
-
-            except:
-                self.iface.messageBar().pushCritical(self.tr('Login fehlgeschlagen'),
-                                                    self.tr('Bitte eine .json Datei auswählen!'))
-                self.clear_Plugin()
-
-        else:
-            self.clear_Plugin()
 
     def project_Title_or_File(self):
 
         '''Fills data_projekt with the current project title (if not present use project file name)'''
 
-        if self.authToken:
-            project = qgis.core.QgsProject.instance().baseName()
-            self.title = qgis.core.QgsProject.instance().title()
+        if self.authcfg:
+            project = QgsProject.instance().baseName()
+            self.title = QgsProject.instance().title()
 
             if not self.title:
                 self.data_projekt.setText(project)
@@ -319,18 +241,14 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             else:
                 self.data_projekt.setText(self.title)
 
-        else:
-            pass
 
     def new_Project(self):
 
         '''Emptys data_projekt if a entirely new project is started'''
 
-        if self.authToken:
-            self.data_projekt.setText(qgis.core.QgsProject.instance().baseName())
+        if self.authcfg:
+            self.data_projekt.setText(QgsProject.instance().baseName())
 
-        else:
-            pass
 
     def button_add_Project(self):
 
@@ -346,7 +264,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         if self.title:
             self.rowPosition = self.table_proj.rowCount()
-            qgis.core.QgsProject.instance().setTitle(self.title)
+            QgsProject.instance().setTitle(self.title)
             items = []
 
             for row in range(self.rowPosition):
@@ -355,13 +273,13 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 items.append(item_text)
 
             if self.title in items:
-                reply = qgis.PyQt.QtWidgets.QMessageBox.question(self.iface.mainWindow(),
+                reply = QMessageBox.question(self.iface.mainWindow(),
                                             self.tr('Fortfahren?'),
                                             self.tr('Ein Projekt mit diesem Titel existiert bereits, soll dies ersetzt werden?'),
-                                            qgis.PyQt.QtWidgets.QMessageBox.Yes,
-                                            qgis.PyQt.QtWidgets.QMessageBox.No)
+                                            QMessageBox.Yes,
+                                            QMessageBox.No)
 
-                if reply == QtWidgets.QMessageBox.Yes:
+                if reply == QMessageBox.Yes:
                     self.add_Project()
                     test = self.table_proj.findItems(self.title, qgis.PyQt.QtCore.Qt.MatchExactly)
                     self.table_proj.removeRow(test[0].row())
@@ -392,7 +310,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         '''Function to delete (or move to trash) projects'''
 
         if self.projekt:
-            perm = QtWidgets.QMessageBox
+            perm = QMessageBox
             ret = perm.question(self,
                                 self.tr('Projekt löschen'),
                                 self.tr('Soll das Projekt "')+ self.projekt + self.tr('" wirklich gelöscht werden?'),
@@ -400,25 +318,25 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             if ret == perm.Yes:
                 try:
-                    answ = gws_api_call(self.hostname,
+                    answ = gws_api_call(self.gws_url,
                                         'fsList',
                                         {},
-                                        self.auth)
+                                        self.authcfg)
 
                     for key, value in answ.items():
                         for values in value:
                             for keys, valuess in values.items():
                                 if str( self.projekt + '/') in valuess:
-                                    answw = gws_api_call(self.hostname,
+                                    answw = gws_api_call(self.gws_url,
                                                         'fsDelete',
                                                         {'path': valuess},
-                                                        self.auth)
+                                                        self.authcfg)
 
                                 elif str( self.projekt + '.config.cx') in valuess:
-                                    answw = gws_api_call(self.hostname,
+                                    answw = gws_api_call(self.gws_url,
                                                         'fsDelete',
                                                         {'path': valuess},
-                                                        self.auth)
+                                                        self.authcfg)
 
                     self.table_proj.removeRow(self.row)
                     self.projekt = None
@@ -453,7 +371,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             pathlib.Path(self.projectFolder, self.projekt).mkdir(parents=True, exist_ok=True)
 
             if os.path.isfile(os.path.join(self.projectFolder, self.projekt, 'hash_list.json')):
-                serverHashList = self.H.load_hash_list(self.hostname, self.auth, self.projekt)
+                serverHashList = self.hash_manager.load_hash_list(
+                    self.gws_url, self.authcfg, self.projekt)
                 print('Server: ',serverHashList)
 
                 with open (os.path.join(self.projectFolder, self.projekt, 'hash_list.json')) as fp:
@@ -475,10 +394,10 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             '''layer downloaden!'''
                             downloadLayer.append(serverHashList[key][1])
 
-                    answ = gws_api_call(self.hostname,
+                    answ = gws_api_call(self.gws_url,
                                         'fsList',
                                         {},
-                                        self.auth)
+                                        self.authcfg)
 
                     print(answ)
 
@@ -487,7 +406,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             for keys, valuess in values.items():
                                 if valuess.startswith(str(self.projekt + '/')):
                                     if valuess.endswith('.qgs'):
-                                        op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                        op_proj = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
                                         #self.path = os.path.join(self.td, self.projekt + '.qgs')
                                         self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
                                         with open(self.path, 'w') as save_proj:
@@ -496,7 +415,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                             save_proj.write(op_proj)
 
                                     elif valuess.endswith('.json'):
-                                        op_hash = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                        op_hash = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
                                         pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
                                         with open(pathH, 'w') as save_hash:
                                             #save_hash = open(pathH, 'w')
@@ -506,10 +425,10 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                     else:
                                         for downlay in downloadLayer:
                                             if valuess in downlay:
-                                                op_layer = gws_api_call(self.hostname,
+                                                op_layer = gws_api_call(self.gws_url,
                                                                         'fsRead',
                                                                         {'path': valuess},
-                                                                        self.auth)
+                                                                        self.authcfg)
                                                 #pathh = os.path.join(self.td, valuess.split('/')[1])
                                                 pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
                                                 with open(pathh, 'w') as save_layer:
@@ -525,10 +444,10 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 except NameError:
                     '''hier wird alles heruntergeladen?!'''
 
-                    answ = gws_api_call(self.hostname,
+                    answ = gws_api_call(self.gws_url,
                                     'fsList',
                                     {},
-                                    self.auth)
+                                    self.authcfg)
 
                     print(answ)
 
@@ -537,7 +456,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                             for keys, valuess in values.items():
                                 if valuess.startswith(str(self.projekt + '/')):
                                     if valuess.endswith('.qgs'):
-                                        op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                        op_proj = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
                                         #self.path = os.path.join(self.td, self.projekt + '.qgs')
                                         self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
                                         with open(self.path, 'w') as save_proj:
@@ -546,7 +465,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                             save_proj.write(op_proj)
 
                                     elif valuess.endswith('.json'):
-                                        op_hash = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                        op_hash = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
                                         pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
                                         with open(pathH, 'w') as save_hash:
                                             #save_hash = open(pathH, 'w')
@@ -554,10 +473,10 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                             save_hash.write(op_hash)
 
                                     else:
-                                        op_layer = gws_api_call(self.hostname,
+                                        op_layer = gws_api_call(self.gws_url,
                                                                 'fsRead',
                                                                 {'path': valuess},
-                                                                self.auth)
+                                                                self.authcfg)
                                         #pathh = os.path.join(self.td, valuess.split('/')[1])
                                         pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
                                         with open(pathh, 'w') as save_layer:
@@ -571,10 +490,10 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             else:
 
-                answ = gws_api_call(self.hostname,
+                answ = gws_api_call(self.gws_url,
                                     'fsList',
                                     {},
-                                    self.auth)
+                                    self.authcfg)
 
                 print(answ)
 
@@ -583,7 +502,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         for keys, valuess in values.items():
                             if valuess.startswith(str(self.projekt + '/')):
                                 if valuess.endswith('.qgs'):
-                                    op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                    op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.authcfg)
                                     #self.path = os.path.join(self.td, self.projekt + '.qgs')
                                     self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
                                     with open(self.path, 'w') as save_proj:
@@ -592,7 +511,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                         save_proj.write(op_proj)
 
                                 elif valuess.endswith('.json'):
-                                    op_hash = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.auth)
+                                    op_hash = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
                                     pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
                                     with open(pathH, 'w') as save_hash:
                                         #save_hash = open(pathH, 'w')
@@ -600,10 +519,10 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                         save_hash.write(op_hash)
 
                                 else:
-                                    op_layer = gws_api_call(self.hostname,
+                                    op_layer = gws_api_call(self.gws_url,
                                                             'fsRead',
                                                             {'path': valuess},
-                                                            self.auth)
+                                                            self.authcfg)
                                     #pathh = os.path.join(self.td, valuess.split('/')[1])
                                     pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
                                     with open(pathh, 'w') as save_layer:
@@ -628,10 +547,9 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         '''emptys the Plugin'''
 
-        self.authToken = False
+        self.authcfg = None
         self.table_proj.setRowCount(0)
         self.data_projekt.setText('')
-        self.label_5.setText(self.tr("Angemeldet als: "))
         self.aktuelles_projekt.setEnabled(False)
         self.liste_projekte.setEnabled(False)
         self.table_proj.setEnabled(False)
@@ -658,7 +576,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         that the project is read before the last layer is proper downloaded
         '''
 
-        qgis.core.QgsProject.instance().read(self.path)
+        QgsProject.instance().read(self.path)
 
     def checkServer(self, max_tries = 0):
         while max_tries < 30:
@@ -668,7 +586,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 time.sleep(1)
             else:
                 self.table_proj.insertRow(self.rowPosition)
-                self.table_proj.setItem(self.rowPosition, 0, QtWidgets.QTableWidgetItem(self.title))
+                self.table_proj.setItem(self.rowPosition, 0, QTableWidgetItem(self.title))
                 self.table_proj.setCellWidget(self.rowPosition, 1, EditButtonWidget(self.rowPosition, self.title, self.hostname, self.font))
                 self.table_proj.scrollToItem(self.table_proj.item(self.rowPosition, 0))
                 self.table_proj.setCurrentCell(self.rowPosition, 0)
@@ -692,12 +610,12 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         #pb
         #self.countChanged.emit(5)
 
-        if qgis.core.QgsProject.instance().crs().authid()[:4] == 'EPSG':
-            if qgis.core.QgsProject.instance().crs().mapUnits() == 0:
+        if QgsProject.instance().crs().authid()[:4] == 'EPSG':
+            if QgsProject.instance().crs().mapUnits() == 0:
 
-                QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
+                QApplication.setOverrideCursor(Qt.WaitCursor)
 
-                proj_crs = qgis.core.QgsProject.instance().crs().authid()
+                proj_crs = QgsProject.instance().crs().authid()
 
                 if proj_crs != 'EPSG:3857':
                     inProj = pyproj.Proj(init='epsg:3857')
@@ -726,7 +644,8 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 pathlib.Path(self.projectFolder, self.title).mkdir(parents=True, exist_ok=True)
                 proj_dir = os.path.join(self.projectFolder, self.title)
 
-                hashListServer = self.H.load_hash_list(self.hostname, self.auth, self.title)
+                hashListServer = self.hash_manager.load_hash_list(
+                    self.gws_url, self.authcfg, self.title)
                 print("hier :", hashListServer)
 
                 change_layer_source = []
@@ -738,7 +657,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 #pb
                 # self.countChanged.emit(15)
 
-                for layer in qgis.core.QgsProject.instance().mapLayers().values():
+                for layer in QgsProject.instance().mapLayers().values():
                     if layer.providerType() in {'ogr', 'memory'}:
                         '''self.iface.mainWindow().statusBar().showMessage("Bereite Layer "
                                                                         + layer.name()
@@ -747,13 +666,13 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         #file_path = os.path.join(proj_dir, layer.name() + '.geojson')
                         file_path = os.path.join(proj_dir, layer.id() + '.geojson')
 
-                        """qgis.core.QgsVectorFileWriter.writeAsVectorFormat(layer, 
+                        """QgsVectorFileWriter.writeAsVectorFormat(layer, 
                                                                             os.path.join(proj_dir,
                                                                                         layer.name()
                                                                                         + '.geojson'),
                                                                             'utf-8',
                                                                             driverName = 'GeoJson')"""
-                        qgis.core.QgsVectorFileWriter.writeAsVectorFormat(layer, 
+                        QgsVectorFileWriter.writeAsVectorFormat(layer, 
                                                                             file_path,
                                                                             'utf-8',
                                                                             driverName = 'GeoJson')
@@ -781,14 +700,15 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         with open(os.path.join(proj_dir, layer.id() + '.geojson'), 'rb') as fp:
                             data = fp.read()
 
-                            buildHash, hashStatus = self.H.build_hash(data, hashListServer, layer.id())
+                            buildHash, hashStatus = self.hash_manager.build_hash(
+                                data, hashListServer, layer.id())
                             print('buildHash: ',buildHash)
                             print('hashStatus: ',hashStatus)
 
                             if hashStatus is not None:
                                 print('layer neu gesendet')
                                 answ = gws_api_call(
-                                    self.hostname,
+                                    self.gws_url,
                                     'fsWrite',
                                     {'path': '/'
                                     + self.title
@@ -797,7 +717,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                     + layer.id()
                                     + '.geojson',
                                     'data': data},
-                                    auth = self.auth )
+                                    authcfg )
 
                                 hashList[layer.id()] = (buildHash, layer.name())
 
@@ -832,10 +752,11 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     else:
                         pass
                 
-                self.H.save_hash_list(self.hostname, self.auth, self.title, hashList, proj_dir)
+                self.hash_manager.save_hash_list(
+                    self.gws_url, self.authcfg, self.title, hashList, proj_dir)
 
                 '''self.iface.mainWindow().statusBar().showMessage("Erstelle die Konfiguration.")'''
-                qgis.core.QgsProject.instance().write(os.path.join(proj_dir, self.title + '.qgs'))
+                QgsProject.instance().write(os.path.join(proj_dir, self.title + '.qgs'))
                 tree = ET.parse(str(os.path.join(proj_dir, self.title + '.qgs')))
                 root = tree.getroot()
 
@@ -868,10 +789,10 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     data = fp.read()
 
                 gws_api_call(
-                    self.hostname, 
+                    self.gws_url, 
                     'fsWrite', 
                     {'path': '/' + self.title + '/' + self.title + '.qgs', 'data': data},
-                    auth = self.auth
+                    authcfg
                 )
 
                 center = self.iface.mapCanvas().extent().center().toString()
@@ -926,10 +847,10 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 ###
 
                 gws_api_call(
-                    self.hostname,
+                    self.gws_url,
                     'fsWrite',
                     {'path': self.title + '.config.cx', 'data': config},
-                    auth = self.auth
+                    authcfg
                 )
 
                 self.checkServer()
@@ -937,7 +858,7 @@ class gbdWebsuiteDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 #pb
                 # self.countChanged.emit(100)
 
-                QtWidgets.QApplication.restoreOverrideCursor()
+                QApplication.restoreOverrideCursor()
 
             else:
                 self.iface.messageBar().pushCritical(self.tr('CRS Fehler!'), self.tr('Bitte wählen Sie ein Koordinatensystem aus, das auf Meter als Einheit nutzt.'))
@@ -989,7 +910,7 @@ class External(QThread):
             self.countChanged.emit(count)'''
 
 
-class EditButtonWidget(QtWidgets.QWidget):
+class EditButtonWidget(QWidget):
 
     '''
     Class that builds the Buttons in the "aktuelle Projekte" List
@@ -1006,17 +927,17 @@ class EditButtonWidget(QtWidgets.QWidget):
 
         ###Layout###
 
-        self.layout = QtWidgets.QHBoxLayout(self)
+        self.layout = QHBoxLayout(self)
 
         self.layout.setContentsMargins(0,0,0,0)
         self.layout.setSpacing(0)
 
-        self.b1 = QtWidgets.QPushButton()
+        self.b1 = QPushButton()
         self.b1.setToolTip(self.tr('Öffne die WebSuite'))
         self.b1.setIcon(QtGui.QIcon(':/plugins/gbd_websuite_plugin/icons/icon.png'))
         self.b1.clicked.connect(self.doButtonB1)
 
-        self.b2 = QtWidgets.QPushButton()
+        self.b2 = QPushButton()
         self.b2.setToolTip(self.tr('Link anzeigen'))
         self.b2.setIcon(QtGui.QIcon(':/plugins/gbd_websuite_plugin/icons/link.png'))
         self.b2.clicked.connect(self.doButtonB2)
@@ -1040,12 +961,12 @@ class EditButtonWidget(QtWidgets.QWidget):
 
         '''Opens a QT-Window that shows the Link and allows it to copy it'''
 
-        clipboard = qgis.PyQt.QtWidgets.QApplication.clipboard().setText(self.title)
+        clipboard = QApplication.clipboard().setText(self.title)
         
         self.w = Window2(self.title, self.hostname, self.font)
         self.w.show()
        
-class Window2(QtWidgets.QMainWindow):
+class Window2(QMainWindow):
 
     '''
     Class that builds the MainWindow to show the Links to the different WebMaps
@@ -1062,56 +983,56 @@ class Window2(QtWidgets.QMainWindow):
         self.setGeometry(0,0,670,185)
         self.setWindowTitle(self.tr('Link zum Projekt: ') + self.title)
 
-        self.pushButton = QtWidgets.QPushButton(self)
+        self.pushButton = QPushButton(self)
         self.pushButton.setGeometry(qgis.PyQt.QtCore.QRect(540, 20, 110, 25))
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText(self.tr("Link kopieren"))
         self.pushButton.clicked.connect(self.copy_link)
         self.pushButton.setFont(self.font)
 
-        self.pushButton_2 = QtWidgets.QPushButton(self)
+        self.pushButton_2 = QPushButton(self)
         self.pushButton_2.setGeometry(qgis.PyQt.QtCore.QRect(540, 80, 110, 25))
         self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton_2.setText(self.tr("Link kopieren"))
         self.pushButton_2.setFont(self.font)
 
-        self.pushButton_3 = QtWidgets.QPushButton(self)
+        self.pushButton_3 = QPushButton(self)
         self.pushButton_3.setGeometry(qgis.PyQt.QtCore.QRect(540, 140, 110, 25))
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setText(self.tr("Link kopieren"))
         self.pushButton_3.setFont(self.font)
 
-        self.label = QtWidgets.QLabel(self)
+        self.label = QLabel(self)
         self.label.setGeometry(qgis.PyQt.QtCore.QRect(20, 20, 67, 17))
         self.label.setObjectName("label")
         self.label.setText(self.tr("Webseite: "))
         self.label.setFont(self.font)
 
-        self.label_2 = QtWidgets.QLabel(self)
+        self.label_2 = QLabel(self)
         self.label_2.setGeometry(qgis.PyQt.QtCore.QRect(20, 80, 67, 17))
         self.label_2.setObjectName("label_2")
         self.label_2.setText(self.tr("WMS: "))
         self.label_2.setFont(self.font)
 
-        self.label_3 = QtWidgets.QLabel(self)
+        self.label_3 = QLabel(self)
         self.label_3.setGeometry(qgis.PyQt.QtCore.QRect(20, 140, 67, 17))
         self.label_3.setObjectName("label_3")
         self.label_3.setText(self.tr("WFS: "))
         self.label_3.setFont(self.font)
 
-        self.textBrowser = QtWidgets.QTextBrowser(self)
+        self.textBrowser = QTextBrowser(self)
         self.textBrowser.setEnabled(True)
         self.textBrowser.setGeometry(qgis.PyQt.QtCore.QRect(90, 20, 450, 25))
         self.textBrowser.setOpenExternalLinks(True)
         self.textBrowser.setObjectName("textBrowser")
         self.textBrowser.setText(self.hostname + str('project/' + self.title))
 
-        self.textBrowser_2 = QtWidgets.QTextBrowser(self)
+        self.textBrowser_2 = QTextBrowser(self)
         self.textBrowser_2.setGeometry(qgis.PyQt.QtCore.QRect(90, 80, 450, 25))
         self.textBrowser_2.setObjectName("textBrowser_2")
         self.textBrowser_2.setText(self.hostname + str('project/'))
 
-        self.textBrowser_3 = QtWidgets.QTextBrowser(self)
+        self.textBrowser_3 = QTextBrowser(self)
         self.textBrowser_3.setGeometry(qgis.PyQt.QtCore.QRect(90, 140, 450, 25))
         self.textBrowser_3.setObjectName("textBrowser_3")
         self.textBrowser_3.setText(self.hostname + str('project/'))
@@ -1126,11 +1047,11 @@ class Window2(QtWidgets.QMainWindow):
         '''
         
         frameGm = self.frameGeometry()
-        screen = QtWidgets.QApplication.desktop().screenNumber(QtWidgets.QApplication.desktop().cursor().pos())
-        centerPoint = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
+        screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
+        centerPoint = QApplication.desktop().screenGeometry(screen).center()
         frameGm.moveCenter(centerPoint)
         self.move(frameGm.topLeft())
       
     def copy_link(self):
 
-        qgis.PyQt.QtWidgets.QApplication.clipboard().setText(self.hostname + str('project/') + self.title)
+        QApplication.clipboard().setText(self.hostname + str('project/') + self.title)

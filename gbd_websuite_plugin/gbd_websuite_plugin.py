@@ -21,6 +21,9 @@
  *                                                                         *
  ***************************************************************************/
 """
+import os.path
+import pathlib
+
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
@@ -30,8 +33,6 @@ from .resources import *
 
 # Import the code for the DockWidget
 from .gbd_websuite_plugin_dockwidget import gbdWebsuiteDockWidget
-import os.path
-import pathlib
 
 
 class gbdWebsuite:
@@ -246,6 +247,5 @@ class gbdWebsuite:
             #####
             # Hide button_options, because no aditional options are implemented yet
             self.dockwidget.button_options.setVisible(False)
+            self.dockwidget.set_font()
             self.dockwidget.data_projekt.resize(261, 27)
-            #####
-            self.dockwidget.checkAuthLocal()

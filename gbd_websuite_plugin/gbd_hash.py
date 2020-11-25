@@ -6,18 +6,18 @@ import json
 from .gws_api import gws_api_call
 
 
-class gbd_manager_hash():
+class GbdManagerHash():
     """Build a Hash for all files distributed by the Manager"""
 
-    def load_hash_list(self, url, auth, title):
+    def load_hash_list(self, url, authcfg, title):
         '''load the hash list from the server'''
         print('url: ', url)
-        print('auth: ', auth)
+        print('auth: ', authcfg)
         print('title: ', title)
         answ = gws_api_call(url,
                             'fsRead',
                             {'path': title + '/hash_list.json'},
-                            auth = auth)
+                            authcfg)
 
         print('downloaded: ', answ)
         
@@ -55,7 +55,7 @@ class gbd_manager_hash():
         else:
             return(m, True)
 
-    def save_hash_list(self, url, auth, title, hashList, projDir):
+    def save_hash_list(self, url, authcfg, title, hashList, projDir):
         '''Sends the hash list to the server'''
         print(hashList)
         hashList = json.dumps(hashList)
@@ -66,7 +66,7 @@ class gbd_manager_hash():
                             + title
                             + '/hash_list.json',
                             'data': hashList},
-                            auth = auth)
+                            authcfg)
 
         print(answ)
 

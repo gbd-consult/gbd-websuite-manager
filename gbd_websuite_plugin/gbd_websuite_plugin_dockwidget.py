@@ -56,7 +56,8 @@ from qgis.PyQt.QtWidgets import (
     QPushButton,
     QTextBrowser,
     QLabel,
-    QMainWindow
+    QMainWindow,
+    QHeaderView
 )
 from qgis.PyQt.QtCore import pyqtSignal, QFileInfo, QThread, Qt, QUrl
 
@@ -130,7 +131,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             self.authcfg_select.setConfigId(self.config.get('authcfg'))
         
 
-        self.proj = None
+        self.projects = None
         self.projekt = None
         self.title = None
         self.rowPosition = None
@@ -197,10 +198,16 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             })
             with open(self.config_path, 'w') as fp:
                 json.dump(self.config, fp)
-            self.aktuelles_projekt.setEnabled(True)
-            self.liste_projekte.setEnabled(True)
-            self.table_proj.setEnabled(True)
-            self.project_Title_or_File()
+            self.projects = self.load_projects()
+            if self.projects:
+                self.populate_table(self.projects)
+                self.aktuelles_projekt.setEnabled(True)
+                self.liste_projekte.setEnabled(True)
+                self.table_proj.setEnabled(True)
+                self.project_Title_or_File()
+            else:
+                self.gws_url = None
+                self.authcfg = None
         else:
             self.gws_url = None
             self.authcfg = None
@@ -225,6 +232,48 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
         f = self.iface.settingsMenu().font().toString().rsplit(",")[0]
         s = int(self.iface.settingsMenu().font().toString().rsplit(",")[1])
         self.font = QtGui.QFont(f, s)
+
+    
+    def load_projects(self):
+        """Load Projects form GWS."""
+        projects = gws_api_call(
+            self.gws_url,
+            'fsList',
+            {},
+            self.authcfg
+        )
+        if 'entries' not in projects:
+            iface.messageBar.pushCritical(
+                self.tr('Authentifizierung fehlgeschlagen!'),
+                self.tr('Falsche Logindaten')
+            )
+            return None
+        else:
+            project_names = [
+                path.rstrip('.config.cx') 
+                for path in
+                [ e.get('path') for e in projects.get('entries')]
+                if path.endswith('.config.cx')
+            ]
+            return project_names
+
+
+    def populate_table(self, projects):
+        """Fill the table with the GWS projects."""
+        nb_row = len(projects)
+        nb_col = 2
+
+        self.table_proj.setRowCount(nb_row)
+        self.table_proj.setColumnCount(nb_col)
+
+        for row in range(nb_row):
+            item = QTableWidgetItem(projects[row])
+            self.table_proj.setItem(row, 0, item)
+            self.table_proj.setCellWidget(row, 1,
+                EditButtonWidget(row, item.text(), self.gws_url, self.font))
+        
+        self.table_proj.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.table_proj.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
 
 
     def project_Title_or_File(self):

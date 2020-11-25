@@ -119,7 +119,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             'GBD_WebSuite',
             'gws.json'
         )
-        self.projectFolder = os.path.dirname(self.config_path)
+        self.projectFolder = None
 
         if os.path.exists(self.config_path):
             with open(self.config_path, 'r') as fp:
@@ -187,6 +187,17 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
     def update_auth(self, authcfg):
         """update the auth config."""
+        # disable the dialog
+        self.liste_projekte.setEnabled(False)
+        self.aktuelles_projekt.setEnabled(False)
+        self.table_proj.setEnabled(False)
+        self.populate_table([])
+        
+        # reset variables
+        self.projectFolder = None
+        self.authcfg = None
+        self.gws_url = None
+
         conf = QgsAuthMethodConfig()
         QgsApplication.authManager().loadAuthenticationConfig(
             authcfg, conf, True)
@@ -200,17 +211,20 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                 json.dump(self.config, fp)
             self.projects = self.load_projects()
             if self.projects:
+                self.projectFolder = os.path.join(
+                    os.path.dirname(self.config_path),
+                    'projects',
+                    self.gws_url.host()
+                )
                 self.populate_table(self.projects)
                 self.aktuelles_projekt.setEnabled(True)
                 self.liste_projekte.setEnabled(True)
                 self.table_proj.setEnabled(True)
                 self.project_Title_or_File()
             else:
-                self.gws_url = None
                 self.authcfg = None
-        else:
-            self.gws_url = None
-            self.authcfg = None
+                self.projectFolder = None
+                self.gws_url = None
         
     def doButtonOptions(self):
 
@@ -551,7 +565,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                         for keys, valuess in values.items():
                             if valuess.startswith(str(self.projekt + '/')):
                                 if valuess.endswith('.qgs'):
-                                    op_proj = gws_api_call(self.hostname, 'fsRead', {'path': valuess}, self.authcfg)
+                                    op_proj = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
                                     #self.path = os.path.join(self.td, self.projekt + '.qgs')
                                     self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
                                     with open(self.path, 'w') as save_proj:
@@ -913,7 +927,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                 self.iface.messageBar().pushCritical(self.tr('CRS Fehler!'), self.tr('Bitte wählen Sie ein Koordinatensystem aus, das auf Meter als Einheit nutzt.'))
         
         else:
-            self.ifac.messageBar().pushCritical(self.tr('CRS Fehler!'), self.tr('Bitte wählen sie ein EPSG-Koordinatensystem aus.'))
+            self.iface.messageBar().pushCritical(self.tr('CRS Fehler!'), self.tr('Bitte wählen sie ein EPSG-Koordinatensystem aus.'))
 
 '''class uploadLayersExternal(QThread):
 

@@ -11,8 +11,8 @@ def gws_api_call(url, cmd, params, authcfg = None, binary=True, compress=True):
 
     Args:
         url: the server url to be called
-        cmd: a command value from the GwsServerApi list,
-            see https://gws.gbd-consult.de/doc/latest/books/client-developer/en/apiref.html
+        cmd: a command value from the GwsServerApi list,see 
+            https://gws.gbd-consult.de/doc/latest/books/client-developer/en/apiref.html
         params: a dictionary of parameters (as documented above)
         authcgf: an authcfg id for QGIS Authmanager
         binary: whether to use binary (msgpack), and not text (json) format
@@ -20,8 +20,8 @@ def gws_api_call(url, cmd, params, authcfg = None, binary=True, compress=True):
 
     Returns:
         A dict with the server response. If case of an error, the dict contains
-        an `error` subdict with the fields `status` (e.g. 404) and `info`. Otherwise, it
-        contains the response data, as documented above.
+        an `error` subdict with the fields `status` (e.g. 404) and `info`. 
+        Otherwise, it contains the response data, as documented above.
     """
 
     data = {'cmd': cmd, 'params': params}
@@ -43,12 +43,13 @@ def gws_api_call(url, cmd, params, authcfg = None, binary=True, compress=True):
         req.setRawHeader(   QByteArray(b'content-encoding'),
                             QByteArray(b'gzip'))
 
-    res = QgsNetworkAccessManager.instance().blockingPost(request = req, data = data, authCfg = authcfg, forceRefresh = True)
+    res = QgsNetworkAccessManager.instance().blockingPost(request = req,
+                                                            data = data,
+                                                            authCfg = authcfg,
+                                                            forceRefresh = True)
 
-    #if(not res.content()):
-    #    pass
-    #else:
-    content_type = res.rawHeader(QByteArray(b'Content-Type')).data().decode().lower()
+    content_type = res.rawHeader(QByteArray(b'Content-Type')) \
+                        .data().decode().lower()
 
     if content_type.endswith('msgpack'):
         return umsgpack.loads(res.content().data())
@@ -56,8 +57,6 @@ def gws_api_call(url, cmd, params, authcfg = None, binary=True, compress=True):
         return json.loads(str(res.content().data(), 'utf-8'))
 
     raise ValueError('Unexpected content-type ' + repr(content_type))
-        #else:
-        #    raise ConnectionError('Error connectiong' + res.errorString())
 
 #################################################################
 
@@ -71,7 +70,7 @@ _UID_DE_TRANS = {
 }
 
 def as_uid(x) -> str:
-    """Convert a value to an uid (alphanumeric string).""" 
+    """Convert a value to an uid (alphanumeric string)."""
     if not x:
         return ''
     x = str(x).lower().strip().translate(_UID_DE_TRANS)

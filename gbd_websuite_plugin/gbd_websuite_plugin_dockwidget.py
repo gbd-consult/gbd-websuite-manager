@@ -59,7 +59,14 @@ from qgis.PyQt.QtWidgets import (
     QMainWindow,
     QHeaderView
 )
-from qgis.PyQt.QtCore import pyqtSignal, QFileInfo, QThread, Qt, QUrl, QRect
+from qgis.PyQt.QtCore import (
+    pyqtSignal, 
+    QFileInfo, 
+    QThread, 
+    Qt, 
+    QUrl, 
+    QRect
+)
 
 # Python QGIS API
 from qgis.utils import iface
@@ -129,7 +136,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
         if self.config.get('authcfg'):
             self.authcfg_select.setConfigId(self.config.get('authcfg'))
-        
 
         self.projects = None
         self.projekt = None
@@ -192,7 +198,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
         self.aktuelles_projekt.setEnabled(False)
         self.table_proj.setEnabled(False)
         self.populate_table([])
-        
+
         # reset variables
         self.projectFolder = None
         self.authcfg = None
@@ -225,10 +231,12 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                 self.authcfg = None
                 self.projectFolder = None
                 self.gws_url = None
-        
+
     def doButtonOptions(self):
 
-        ''' TODO: Function to open the advanced options main window, must be implemented '''
+        ''' 
+        TODO: Function to open the advanced options main window
+        '''
 
         button_options()
 
@@ -281,16 +289,33 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
         for row in range(nb_row):
             item = QTableWidgetItem(projects[row])
             self.table_proj.setItem(row, 0, item)
-            self.table_proj.setCellWidget(row, 1,
-                EditButtonWidget(row, item.text(), self.gws_url, self.font))
+            self.table_proj.setCellWidget(
+                                            row,
+                                            1,
+                                            EditButtonWidget(
+                                                            row, 
+                                                             item.text(),
+                                                             self.gws_url,
+                                                             self.font
+                                                             )
+                                            )
         
-        self.table_proj.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
-        self.table_proj.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.table_proj.horizontalHeader().setSectionResizeMode(
+                                                                0,
+                                                                QHeaderView.Stretch
+                                                                )
+        self.table_proj.horizontalHeader().setSectionResizeMode(
+                                                                1, 
+                                                                QHeaderView.ResizeToContents
+                                                                )
 
 
     def project_Title_or_File(self):
 
-        '''Fills data_projekt with the current project title (if not present use project file name)'''
+        '''
+        Fills data_projekt with the current project title
+        (if not present use project file name)
+        '''
 
         if self.authcfg:
             project = QgsProject.instance().baseName()
@@ -336,24 +361,26 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             if self.title in items:
                 reply = QMessageBox.question(self.iface.mainWindow(),
                                             self.tr('Fortfahren?'),
-                                            self.tr('Ein Projekt mit diesem Titel existiert bereits, soll dies ersetzt werden?'),
+                                            self.tr('Ein Projekt mit diesem \
+                                                    Titel existiert bereits, \
+                                                    soll dies ersetzt werden?'),
                                             QMessageBox.Yes,
                                             QMessageBox.No)
 
                 if reply == QMessageBox.Yes:
                     self.add_Project()
-                    test = self.table_proj.findItems(self.title, qgis.PyQt.QtCore.Qt.MatchExactly)
+                    test = self.table_proj.findItems(self.title,
+                                            qgis.PyQt.QtCore.Qt.MatchExactly)
                     self.table_proj.removeRow(test[0].row())
-
-                else:
-                    pass
 
             else:
                 self.add_Project()
 
         else:
             self.iface.messageBar().pushCritical(self.tr('Kein Titel'),
-                                                self.tr('Bitte geben Sie einen Titel für das Projekt an!'))
+                                                self.tr('Bitte geben Sie einen \
+                                                    Titel für das Projekt an!')
+                                                )
 
     def get_row(self):
 
@@ -374,8 +401,11 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             perm = QMessageBox
             ret = perm.question(self,
                                 self.tr('Projekt löschen'),
-                                self.tr('Soll das Projekt "')+ self.projekt + self.tr('" wirklich gelöscht werden?'),
-                                perm.Yes | perm.No)
+                                self.tr('Soll das Projekt "')
+                                + self.projekt 
+                                + self.tr('" wirklich gelöscht werden?'),
+                                perm.Yes | perm.No
+                                )
 
             if ret == perm.Yes:
                 try:
@@ -401,41 +431,50 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     self.table_proj.removeRow(self.row)
                     self.projekt = None
                     self.iface.messageBar().pushSuccess(self.tr('Erfolgreich gelöscht!'),
-                                                        self.tr('Ihr Projekt wurde in den Papierkorb verschoben.'))
+                                                        self.tr('Ihr Projekt wurde in den \
+                                                                Papierkorb verschoben.'))
 
                 except:
-                    self.iface.messageBar().pushCritical(self.tr('Löschen fehlgeschlagen!'),
+                    self.iface.messageBar().pushCritical(self.tr('Löschen \
+                                                                fehlgeschlagen!'),
                                                         self.tr('Ihr Projekt ')
                                                         + self.projekt
-                                                        + self.tr(' konnte nicht gelöscht werden.'))
+                                                        + self.tr(' konnte nicht \
+                                                                gelöscht werden.'))
 
             if ret == perm.No:
                 pass
 
         else:
             self.iface.messageBar().pushCritical(self.tr('Keine Auswahl'),
-                                                self.tr('Bitte wählen Sie ein Projekt aus das sie löschen möchten.'))
+                                                self.tr('Bitte wählen Sie ein \
+                                                        Projekt aus das sie \
+                                                        löschen möchten.'))
 
     def load_Project(self):
 
         '''Load projects from the Websuite folder'''
 
-        #if self.td:
-        #    shutil.rmtree(self.td)
-
-        #else:
-        #    pass
-
         if self.projekt:
 
-            pathlib.Path(self.projectFolder, self.projekt).mkdir(parents=True, exist_ok=True)
+            pathlib.Path(self.projectFolder, self.projekt).mkdir(parents=True,
+                                                                exist_ok=True
+                                                                )
 
-            if os.path.isfile(os.path.join(self.projectFolder, self.projekt, 'hash_list.json')):
+            if os.path.isfile(os.path.join(self.projectFolder,
+                                            self.projekt,
+                                            'hash_list.json'
+                                            )
+                            ):
                 serverHashList = self.hash_manager.load_hash_list(
                     self.gws_url, self.authcfg, self.projekt)
                 print('Server: ',serverHashList)
 
-                with open (os.path.join(self.projectFolder, self.projekt, 'hash_list.json')) as fp:
+                with open (os.path.join(self.projectFolder,
+                                        self.projekt,
+                                        'hash_list.json'
+                                        )
+                            ) as fp:
                     localHashList = json.load(fp)
                     print('local: ',localHashList)
 
@@ -457,28 +496,39 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     answ = gws_api_call(self.gws_url,
                                         'fsList',
                                         {},
-                                        self.authcfg)
-
-                    print(answ)
+                                        self.authcfg
+                                        )
 
                     for key, value in answ.items():
                         for values in value:
                             for keys, valuess in values.items():
                                 if valuess.startswith(str(self.projekt + '/')):
                                     if valuess.endswith('.qgs'):
-                                        op_proj = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
-                                        #self.path = os.path.join(self.td, self.projekt + '.qgs')
-                                        self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
+                                        op_proj = gws_api_call(self.gws_url,
+                                                                'fsRead',
+                                                                {'path': valuess},
+                                                                self.authcfg
+                                                                )
+                                        self.path = os.path.join(self.projectFolder,
+                                                                self.projekt,
+                                                                self.projekt +
+                                                                '.qgs'
+                                                                )
                                         with open(self.path, 'w') as save_proj:
-                                            #save_proj = open(self.path, 'w')
                                             op_proj = op_proj['data'].decode('utf-8')
                                             save_proj.write(op_proj)
 
                                     elif valuess.endswith('.json'):
-                                        op_hash = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
-                                        pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                        op_hash = gws_api_call(self.gws_url,
+                                                                'fsRead',
+                                                                {'path': valuess},
+                                                                self.authcfg
+                                                                )
+                                        pathH = os.path.join(self.projectFolder, 
+                                                            self.projekt,
+                                                            valuess.split('/')[1]
+                                                            )
                                         with open(pathH, 'w') as save_hash:
-                                            #save_hash = open(pathH, 'w')
                                             op_hash = op_hash['data'].decode('utf-8')
                                             save_hash.write(op_hash)
 
@@ -489,17 +539,13 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                                                         'fsRead',
                                                                         {'path': valuess},
                                                                         self.authcfg)
-                                                #pathh = os.path.join(self.td, valuess.split('/')[1])
-                                                pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                                pathh = os.path.join(self.projectFolder,
+                                                                    self.projekt,
+                                                                    valuess.split('/')[1]
+                                                                    )
                                                 with open(pathh, 'w') as save_layer:
-                                                    #save_layer = open(pathh, 'w')
                                                     op_layer = op_layer['data'].decode('utf-8')
                                                     save_layer.write(op_layer)
-                                            else:
-                                                pass
-
-                                else:
-                                    pass
 
                 except NameError:
                     '''hier wird alles heruntergeladen?!'''
@@ -509,24 +555,35 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                     {},
                                     self.authcfg)
 
-                    print(answ)
-
                     for key, value in answ.items():
                         for values in value:
                             for keys, valuess in values.items():
                                 if valuess.startswith(str(self.projekt + '/')):
                                     if valuess.endswith('.qgs'):
-                                        op_proj = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
-                                        #self.path = os.path.join(self.td, self.projekt + '.qgs')
-                                        self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
+                                        op_proj = gws_api_call(self.gws_url, 
+                                                                'fsRead',
+                                                                {'path': valuess},
+                                                                self.authcfg
+                                                                )
+                                        self.path = os.path.join(self.projectFolder,
+                                                                self.projekt,
+                                                                self.projekt +
+                                                                '.qgs'
+                                                                )
                                         with open(self.path, 'w') as save_proj:
-                                            #save_proj = open(self.path, 'w')
                                             op_proj = op_proj['data'].decode('utf-8')
                                             save_proj.write(op_proj)
 
                                     elif valuess.endswith('.json'):
-                                        op_hash = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
-                                        pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                        op_hash = gws_api_call(self.gws_url,
+                                                                'fsRead',
+                                                                {'path': valuess},
+                                                                self.authcfg
+                                                                )
+                                        pathH = os.path.join(self.projectFolder,
+                                                            self.projekt,
+                                                            valuess.split('/')[1]
+                                                            )
                                         with open(pathH, 'w') as save_hash:
                                             #save_hash = open(pathH, 'w')
                                             op_hash = op_hash['data'].decode('utf-8')
@@ -538,43 +595,52 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                                                 {'path': valuess},
                                                                 self.authcfg)
                                         #pathh = os.path.join(self.td, valuess.split('/')[1])
-                                        pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                        pathh = os.path.join(self.projectFolder,
+                                                            self.projekt,
+                                                            valuess.split('/')[1]
+                                                            )
                                         with open(pathh, 'w') as save_layer:
                                             #save_layer = open(pathh, 'w')
                                             op_layer = op_layer['data'].decode('utf-8')
                                             save_layer.write(op_layer)
 
-                                else:
-                                    pass
-
-
             else:
-
                 answ = gws_api_call(self.gws_url,
                                     'fsList',
                                     {},
-                                    self.authcfg)
-
-                print(answ)
+                                    self.authcfg
+                                    )
 
                 for key, value in answ.items():
                     for values in value:
                         for keys, valuess in values.items():
                             if valuess.startswith(str(self.projekt + '/')):
                                 if valuess.endswith('.qgs'):
-                                    op_proj = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
-                                    #self.path = os.path.join(self.td, self.projekt + '.qgs')
-                                    self.path = os.path.join(self.projectFolder, self.projekt, self.projekt + '.qgs')
+                                    op_proj = gws_api_call(self.gws_url,
+                                                            'fsRead',
+                                                            {'path': valuess},
+                                                            self.authcfg
+                                                            )
+                                    self.path = os.path.join(self.projectFolder,
+                                                            self.projekt,
+                                                            self.projekt +
+                                                            '.qgs'
+                                                            )
                                     with open(self.path, 'w') as save_proj:
-                                        #save_proj = open(self.path, 'w')
                                         op_proj = op_proj['data'].decode('utf-8')
                                         save_proj.write(op_proj)
 
                                 elif valuess.endswith('.json'):
-                                    op_hash = gws_api_call(self.gws_url, 'fsRead', {'path': valuess}, self.authcfg)
-                                    pathH = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                    op_hash = gws_api_call(self.gws_url,
+                                                            'fsRead',
+                                                            {'path': valuess},
+                                                            self.authcfg
+                                                            )
+                                    pathH = os.path.join(self.projectFolder,
+                                                        self.projekt,
+                                                        valuess.split('/')[1]
+                                                        )
                                     with open(pathH, 'w') as save_hash:
-                                        #save_hash = open(pathH, 'w')
                                         op_hash = op_hash['data'].decode('utf-8')
                                         save_hash.write(op_hash)
 
@@ -582,26 +648,30 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                     op_layer = gws_api_call(self.gws_url,
                                                             'fsRead',
                                                             {'path': valuess},
-                                                            self.authcfg)
-                                    #pathh = os.path.join(self.td, valuess.split('/')[1])
-                                    pathh = os.path.join(self.projectFolder, self.projekt, valuess.split('/')[1])
+                                                            self.authcfg
+                                                            )
+                                    pathh = os.path.join(self.projectFolder,
+                                                        self.projekt,
+                                                        valuess.split('/')[1]
+                                                        )
                                     with open(pathh, 'w') as save_layer:
-                                        #save_layer = open(pathh, 'w')
                                         op_layer = op_layer['data'].decode('utf-8')
                                         save_layer.write(op_layer)
 
-                            else:
-                                pass
-
         else:
             self.iface.messageBar().pushCritical(self.tr('Laden fehlgeschlagen'),
-                                                self.tr('Bitte wählen Sie ein Projekt aus!'))
+                                                self.tr('Bitte wählen Sie ein \
+                                                        Projekt aus!')
+                                                )
 
     def open_Help(self):
 
         '''Open the Link to GWS-Website / Help'''
 
-        webbrowser.open('https://gws.gbd-consult.de/', new = 0, autoraise = True)
+        webbrowser.open('https://gbd-websuite.de/doc/latest/books/websuite-manager/de/index.html',
+                        new = 0,
+                        autoraise = True
+                        )
 
     def clear_Plugin(self):
 
@@ -624,7 +694,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
         '''what happens if the plugin is closed'''
 
-
         self.clear_Plugin()
         self.closingPlugin.emit()
         event.accept()
@@ -633,7 +702,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
         '''
         Just to open the Project, and to avoid, 
-        that the project is read before the last layer is proper downloaded
+        that the project is read before the last 
+        layer is proper downloaded
         '''
 
         QgsProject.instance().read(self.path)
@@ -648,9 +718,23 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                 time.sleep(1)
             else:
                 self.table_proj.insertRow(self.rowPosition)
-                self.table_proj.setItem(self.rowPosition, 0, QTableWidgetItem(self.title))
-                self.table_proj.setCellWidget(self.rowPosition, 1, EditButtonWidget(self.rowPosition, self.title, self.gws_url, self.font))
-                self.table_proj.scrollToItem(self.table_proj.item(self.rowPosition, 0))
+                self.table_proj.setItem(self.rowPosition,
+                                        0,
+                                        QTableWidgetItem(self.title)
+                                        )
+                self.table_proj.setCellWidget(self.rowPosition,
+                                            1,
+                                            EditButtonWidget(self.rowPosition,
+                                                            self.title,
+                                                            self.gws_url,
+                                                            self.font
+                                                            )
+                                            )
+                self.table_proj.scrollToItem(self.table_proj.item(
+                                                                self.rowPosition, 
+                                                                0
+                                                                )
+                                            )
                 self.table_proj.setCurrentCell(self.rowPosition, 0)
                 self.iface.messageBar().pushSuccess(self.tr('Projekt gespeichert'),
                                                     self.tr('Sie können es jetzt unter "')
@@ -658,11 +742,16 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                                     + '/project/'
                                                     + self.title)
                                                     + self.tr('" abrufen.'))
-                '''self.iface.mainWindow().statusBar().clearMessage()'''
                 break
         else:
             self.iface.messageBar().pushCritical(self.tr('GWS Fehler'),
-                                                    self.tr('Server konnte noch nicht gestartet werden. Bei erneutem auftreten kontaktieren Sie bitte Ihren Admin.'))
+                                                    self.tr('Server konnte noch \
+                                                        nicht gestartet werden. \
+                                                        Bei erneutem auftreten \
+                                                        kontaktieren Sie bitte \
+                                                        Ihren Admin.'
+                                                            )
+                                                )
 
     def add_Project(self):
 
@@ -696,19 +785,22 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
                     extentGermany = str(extentGermany)
                     extentGermany = extentGermany.replace(',', '')
-                    
+               
                 else:
                     extentGermany = [644000, 5980000, 1680000, 7390000]
                     extentGermany = str(extentGermany)
                     extentGermany = extentGermany.replace(',', '')
 
                 #proj_dir = tempfile.mkdtemp()
-                pathlib.Path(self.projectFolder, self.title).mkdir(parents=True, exist_ok=True)
+                pathlib.Path(self.projectFolder, 
+                            self.title
+                            ).mkdir(parents=True, 
+                                    exist_ok=True
+                                    )
                 proj_dir = os.path.join(self.projectFolder, self.title)
 
                 hashListServer = self.hash_manager.load_hash_list(
                     self.gws_url, self.authcfg, self.title)
-                print("hier :", hashListServer)
 
                 change_layer_source = []
                 changeMemoryLayers = []
@@ -721,27 +813,16 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
                 for layer in QgsProject.instance().mapLayers().values():
                     if layer.providerType() in {'ogr', 'memory'}:
-                        '''self.iface.mainWindow().statusBar().showMessage("Bereite Layer "
-                                                                        + layer.name()
-                                                                        + " vor.")'''
+                        file_path = os.path.join(proj_dir,
+                                                layer.id() + '.geojson'
+                                                )
 
-                        #file_path = os.path.join(proj_dir, layer.name() + '.geojson')
-                        file_path = os.path.join(proj_dir, layer.id() + '.geojson')
+                        QgsVectorFileWriter.writeAsVectorFormat(layer,
+                                                                file_path,
+                                                                'utf-8',
+                                                                driverName = 'GeoJson'
+                                                                )
 
-                        """QgsVectorFileWriter.writeAsVectorFormat(layer, 
-                                                                            os.path.join(proj_dir,
-                                                                                        layer.name()
-                                                                                        + '.geojson'),
-                                                                            'utf-8',
-                                                                            driverName = 'GeoJson')"""
-                        QgsVectorFileWriter.writeAsVectorFormat(layer, 
-                                                                            file_path,
-                                                                            'utf-8',
-                                                                            driverName = 'GeoJson')
-
-                        """lay_stor = os.path.getsize(os.path.join(proj_dir,
-                                                                layer.name() 
-                                                                + '.geojson'))"""
                         #lay_stor = os.path.getsize(file_path)
                         
                         #if lay_stor < 20 000 000:
@@ -759,32 +840,32 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                         #hashList[layer.id()] = buildHash
 
                         #with open(os.path.join(proj_dir, layer.name() + '.geojson'), 'rb') as fp:
-                        with open(os.path.join(proj_dir, layer.id() + '.geojson'), 'rb') as fp:
+                        with open(os.path.join(proj_dir,
+                                                layer.id()
+                                                + '.geojson'
+                                                ),
+                                    'rb'
+                                    ) as fp:
                             data = fp.read()
 
                             buildHash, hashStatus = self.hash_manager.build_hash(
                                 data, hashListServer, layer.id())
-                            print('buildHash: ',buildHash)
-                            print('hashStatus: ',hashStatus)
 
                             if hashStatus is not None:
-                                print('layer neu gesendet')
-                                answ = gws_api_call(
-                                    self.gws_url,
-                                    'fsWrite',
-                                    {'path': '/'
-                                    + self.title
-                                    + '/'
-                                    #+ layer.name()
-                                    + layer.id()
-                                    + '.geojson',
-                                    'data': data},
-                                    self.authcfg )
+                                answ = gws_api_call(self.gws_url,
+                                                    'fsWrite',
+                                                    {'path': '/'
+                                                    + self.title
+                                                    + '/'
+                                                    + layer.id()
+                                                    + '.geojson',
+                                                    'data': data},
+                                                    self.authcfg
+                                                    )
 
                                 hashList[layer.id()] = (buildHash, layer.name())
 
                             else:
-                                print('layer passt wie er ist')
                                 hashList[layer.id()] = (buildHash, layer.name())
 
                             #pb
@@ -804,7 +885,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                         self.iface.messageBar().pushWarning(self.tr('Raster Layer'),
                                                             self.tr('Ihr Layer "')
                                                             + layer.name()
-                                                            + self.tr('" wird nicht angezeigt, da es sich um einen Raster-Layer handelt.'))
+                                                            + self.tr('" wird nicht angezeigt, da es sich um einen Raster-Layer handelt.')
+                                                            )
 
                     elif layer.providerType() == 'wms':
                         if 'type=xyz' in layer.publicSource():
@@ -814,20 +896,29 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     else:
                         pass
                 
-                self.hash_manager.save_hash_list(
-                    self.gws_url, self.authcfg, self.title, hashList, proj_dir)
+                self.hash_manager.save_hash_list(self.gws_url,
+                                                self.authcfg,
+                                                self.title,
+                                                hashList,
+                                                proj_dir
+                                                )
 
-                '''self.iface.mainWindow().statusBar().showMessage("Erstelle die Konfiguration.")'''
-                QgsProject.instance().write(os.path.join(proj_dir, self.title + '.qgs'))
-                tree = ET.parse(str(os.path.join(proj_dir, self.title + '.qgs')))
+                QgsProject.instance().write(os.path.join(proj_dir,
+                                                        self.title
+                                                        +'.qgs')
+                                                        )
+                tree = ET.parse(str(os.path.join(proj_dir, 
+                                                self.title 
+                                                + '.qgs'
+                                                )
+                                    )
+                                )
                 root = tree.getroot()
 
                 for maplayer in root.iter('maplayer'):
                     id = maplayer.find('id')
                     if id.text in change_layer_source:
                         datasource = maplayer.find('datasource')
-                        #name = maplayer.find('layername')
-                        #datasource.text = './' + name.text + '.geojson'
                         datasource.text = './' + id.text + '.geojson'
 
                     if id.text in changeMemoryLayers:
@@ -847,13 +938,24 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
                 tree.write(str(os.path.join(proj_dir, self.title + '.qgs')))
 
-                with open(str(os.path.join(proj_dir, self.title + '.qgs')), 'rb') as fp:
+                with open(str(os.path.join(proj_dir,
+                                            self.title
+                                            + '.qgs'
+                                            )
+                            ),
+                            'rb'
+                        ) as fp:
                     data = fp.read()
 
                 gws_api_call(
-                    self.gws_url, 
-                    'fsWrite', 
-                    {'path': '/' + self.title + '/' + self.title + '.qgs', 'data': data},
+                    self.gws_url,
+                    'fsWrite',
+                    {'path': '/' 
+                    + self.title 
+                    + '/' 
+                    + self.title 
+                    + '.qgs',
+                    'data': data},
                     self.authcfg
                 )
 
@@ -923,10 +1025,14 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                 QApplication.restoreOverrideCursor()
 
             else:
-                self.iface.messageBar().pushCritical(self.tr('CRS Fehler!'), self.tr('Bitte wählen Sie ein Koordinatensystem aus, das auf Meter als Einheit nutzt.'))
+                self.iface.messageBar().pushCritical(self.tr('CRS Fehler!'),
+                                                    self.tr('Bitte wählen Sie ein Koordinatensystem aus, das auf Meter als Einheit nutzt.')
+                                                    )
         
         else:
-            self.iface.messageBar().pushCritical(self.tr('CRS Fehler!'), self.tr('Bitte wählen sie ein EPSG-Koordinatensystem aus.'))
+            self.iface.messageBar().pushCritical(self.tr('CRS Fehler!'), 
+                                                self.tr('Bitte wählen sie ein EPSG-Koordinatensystem aus.')
+                                                )
 
 '''class uploadLayersExternal(QThread):
 

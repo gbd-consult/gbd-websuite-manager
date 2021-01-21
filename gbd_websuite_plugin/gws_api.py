@@ -43,18 +43,21 @@ def gws_api_call(url, cmd, params, authcfg = None, binary=True, compress=True):
         req.setRawHeader(   QByteArray(b'content-encoding'),
                             QByteArray(b'gzip'))
 
-    res = QgsNetworkAccessManager.instance().blockingPost(req, data, authcfg)
+    res = QgsNetworkAccessManager.instance().blockingPost(request = req, data = data, authCfg = authcfg, forceRefresh = True)
 
+    #if(not res.content()):
+    #    pass
+    #else:
     content_type = res.rawHeader(QByteArray(b'Content-Type')).data().decode().lower()
-    if res.error() == 0:
-        if content_type.endswith('msgpack'):
-            return umsgpack.loads(res.content().data())
-        if content_type.endswith('json'):
-            return json.loads(str(res.content().data(), 'utf-8'))
 
-        raise ValueError('Unexpected content-type ' + repr(content_type))
-    else:
-        raise ConnectionError('Error connectiong' + res.errorString())
+    if content_type.endswith('msgpack'):
+        return umsgpack.loads(res.content().data())
+    if content_type.endswith('json'):
+        return json.loads(str(res.content().data(), 'utf-8'))
+
+    raise ValueError('Unexpected content-type ' + repr(content_type))
+        #else:
+        #    raise ConnectionError('Error connectiong' + res.errorString())
 
 #################################################################
 

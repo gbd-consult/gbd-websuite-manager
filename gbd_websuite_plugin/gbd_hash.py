@@ -14,26 +14,29 @@ class GbdManagerHash():
         print('url: ', url)
         print('auth: ', authcfg)
         print('title: ', title)
-        answ = gws_api_call(url,
-                            'fsRead',
-                            {'path': title + '/hash_list.json'},
-                            authcfg)
+        try:
+            answ = gws_api_call(url,
+                                'fsRead',
+                                {'path': title + '/hash_list.json'},
+                                authcfg)
 
-        print('downloaded: ', answ)
-        
-        try: 
-            x = answ['data']
-            y = x.decode('UTF-8')
-            mydata = ast.literal_eval(y)
-            print('mydata: ', mydata)
-            return(mydata)
-        except KeyError:
-            try:
-                #answ['error']
-                print('nicht vorhanden')
-                return(None)
-            except:
-                pass
+            print('downloaded: ', answ)
+            
+            try: 
+                x = answ['data']
+                y = x.decode('UTF-8')
+                mydata = ast.literal_eval(y)
+                print('mydata: ', mydata)
+                return(mydata)
+            except TypeError:
+                try:
+                    #answ['error']
+                    print('nicht vorhanden')
+                    return(None)
+                except:
+                    pass
+        except:
+            pass
 
     def build_hash(self, data, hashList, lay_id):
         '''build the hash for the layers'''

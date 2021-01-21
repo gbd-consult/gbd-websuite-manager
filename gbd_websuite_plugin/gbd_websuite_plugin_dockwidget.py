@@ -59,7 +59,7 @@ from qgis.PyQt.QtWidgets import (
     QMainWindow,
     QHeaderView
 )
-from qgis.PyQt.QtCore import pyqtSignal, QFileInfo, QThread, Qt, QUrl
+from qgis.PyQt.QtCore import pyqtSignal, QFileInfo, QThread, Qt, QUrl, QRect
 
 # Python QGIS API
 from qgis.utils import iface
@@ -242,11 +242,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
         '''
         Function to start the Plugin.
         '''
-
-        f = self.iface.settingsMenu().font().toString().rsplit(",")[0]
-        s = int(self.iface.settingsMenu().font().toString().rsplit(",")[1])
-        self.font = QtGui.QFont(f, s)
-
+        
+        self.font = self.iface.settingsMenu().font().toString()
     
     def load_projects(self):
         """Load Projects form GWS."""
@@ -264,7 +261,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             return None
         else:
             project_names = [
-                path.rstrip('.config.cx') 
+                #path.rstrip('.config.cx')
+                path[:-10]
                 for path in
                 [ e.get('path') for e in projects.get('entries')]
                 if path.endswith('.config.cx')
@@ -385,7 +383,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                         'fsList',
                                         {},
                                         self.authcfg)
-
                     for key, value in answ.items():
                         for values in value:
                             for keys, valuess in values.items():
@@ -644,19 +641,21 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
     def checkServer(self, max_tries = 0):
         while max_tries < 30:
             max_tries += 1
-            a1 = r.get(self.hostname + 'project/' + self.title)
+            print(self.gws_url.toString() + '/project/' + self.title)
+            a1 = r.get(self.gws_url.toString() + '/project/' + self.title)
+            print(a1)
             if a1.status_code != 200:
                 time.sleep(1)
             else:
                 self.table_proj.insertRow(self.rowPosition)
                 self.table_proj.setItem(self.rowPosition, 0, QTableWidgetItem(self.title))
-                self.table_proj.setCellWidget(self.rowPosition, 1, EditButtonWidget(self.rowPosition, self.title, self.hostname, self.font))
+                self.table_proj.setCellWidget(self.rowPosition, 1, EditButtonWidget(self.rowPosition, self.title, self.gws_url, self.font))
                 self.table_proj.scrollToItem(self.table_proj.item(self.rowPosition, 0))
                 self.table_proj.setCurrentCell(self.rowPosition, 0)
                 self.iface.messageBar().pushSuccess(self.tr('Projekt gespeichert'),
                                                     self.tr('Sie können es jetzt unter "')
-                                                    + str(self.hostname
-                                                    + 'project/'
+                                                    + str(self.gws_url.toString()
+                                                    + '/project/'
                                                     + self.title)
                                                     + self.tr('" abrufen.'))
                 '''self.iface.mainWindow().statusBar().clearMessage()'''
@@ -780,7 +779,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                     + layer.id()
                                     + '.geojson',
                                     'data': data},
-                                    authcfg )
+                                    self.authcfg )
 
                                 hashList[layer.id()] = (buildHash, layer.name())
 
@@ -855,7 +854,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     self.gws_url, 
                     'fsWrite', 
                     {'path': '/' + self.title + '/' + self.title + '.qgs', 'data': data},
-                    authcfg
+                    self.authcfg
                 )
 
                 center = self.iface.mapCanvas().extent().center().toString()
@@ -913,7 +912,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     self.gws_url,
                     'fsWrite',
                     {'path': self.title + '.config.cx', 'data': config},
-                    authcfg
+                    self.authcfg
                 )
 
                 self.checkServer()
@@ -986,7 +985,7 @@ class EditButtonWidget(QWidget):
         self.title = title
         self.row = row
         self.font = font
-        self.hostname = host
+        self.hostname = host.toString()
 
         ###Layout###
 
@@ -1015,7 +1014,7 @@ class EditButtonWidget(QWidget):
         '''Opens the Link to the weblink and the GBD WebSuite'''
 
         webbrowser.open( self.hostname 
-                        + str('project/')
+                        + str('/project/')
                         + self.title, 
                         new = 0, 
                         autoraise = True)
@@ -1037,9 +1036,11 @@ class Window2(QMainWindow):
     def __init__(self, title, host, font):
         super().__init__()
 
+        self.iface = iface
+
         # variables
         self.title = title
-        self.font = font
+        self.font = self.iface.settingsMenu().font()
         self.hostname = host
 
         # Layout
@@ -1047,56 +1048,56 @@ class Window2(QMainWindow):
         self.setWindowTitle(self.tr('Link zum Projekt: ') + self.title)
 
         self.pushButton = QPushButton(self)
-        self.pushButton.setGeometry(qgis.PyQt.QtCore.QRect(540, 20, 110, 25))
+        self.pushButton.setGeometry(QRect(540, 20, 110, 25))
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText(self.tr("Link kopieren"))
         self.pushButton.clicked.connect(self.copy_link)
         self.pushButton.setFont(self.font)
 
         self.pushButton_2 = QPushButton(self)
-        self.pushButton_2.setGeometry(qgis.PyQt.QtCore.QRect(540, 80, 110, 25))
+        self.pushButton_2.setGeometry(QRect(540, 80, 110, 25))
         self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton_2.setText(self.tr("Link kopieren"))
         self.pushButton_2.setFont(self.font)
 
         self.pushButton_3 = QPushButton(self)
-        self.pushButton_3.setGeometry(qgis.PyQt.QtCore.QRect(540, 140, 110, 25))
+        self.pushButton_3.setGeometry(QRect(540, 140, 110, 25))
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setText(self.tr("Link kopieren"))
         self.pushButton_3.setFont(self.font)
 
         self.label = QLabel(self)
-        self.label.setGeometry(qgis.PyQt.QtCore.QRect(20, 20, 67, 17))
+        self.label.setGeometry(QRect(20, 20, 67, 17))
         self.label.setObjectName("label")
         self.label.setText(self.tr("Webseite: "))
         self.label.setFont(self.font)
 
         self.label_2 = QLabel(self)
-        self.label_2.setGeometry(qgis.PyQt.QtCore.QRect(20, 80, 67, 17))
+        self.label_2.setGeometry(QRect(20, 80, 67, 17))
         self.label_2.setObjectName("label_2")
         self.label_2.setText(self.tr("WMS: "))
         self.label_2.setFont(self.font)
 
         self.label_3 = QLabel(self)
-        self.label_3.setGeometry(qgis.PyQt.QtCore.QRect(20, 140, 67, 17))
+        self.label_3.setGeometry(QRect(20, 140, 67, 17))
         self.label_3.setObjectName("label_3")
         self.label_3.setText(self.tr("WFS: "))
         self.label_3.setFont(self.font)
 
         self.textBrowser = QTextBrowser(self)
         self.textBrowser.setEnabled(True)
-        self.textBrowser.setGeometry(qgis.PyQt.QtCore.QRect(90, 20, 450, 25))
+        self.textBrowser.setGeometry(QRect(90, 20, 450, 25))
         self.textBrowser.setOpenExternalLinks(True)
         self.textBrowser.setObjectName("textBrowser")
         self.textBrowser.setText(self.hostname + str('project/' + self.title))
 
         self.textBrowser_2 = QTextBrowser(self)
-        self.textBrowser_2.setGeometry(qgis.PyQt.QtCore.QRect(90, 80, 450, 25))
+        self.textBrowser_2.setGeometry(QRect(90, 80, 450, 25))
         self.textBrowser_2.setObjectName("textBrowser_2")
         self.textBrowser_2.setText(self.hostname + str('project/'))
 
         self.textBrowser_3 = QTextBrowser(self)
-        self.textBrowser_3.setGeometry(qgis.PyQt.QtCore.QRect(90, 140, 450, 25))
+        self.textBrowser_3.setGeometry(QRect(90, 140, 450, 25))
         self.textBrowser_3.setObjectName("textBrowser_3")
         self.textBrowser_3.setText(self.hostname + str('project/'))
         

@@ -11,7 +11,7 @@ version=0.1
 author=Geoinformatikbüro Dassau GmbH
 email=info@gbd-consult.de
 
-about=Einfache Bereitstellung eines Projektes für die GBD Websuite
+about=Einfache Bereitstellung eines Projektes für die GBD Websuite. 
 
 tracker=http://github.com/gbd-consult/gbd-websuite-manager/issues
 repository=http://github.com/gbd-consult/gbd-websuite-manager
@@ -26,7 +26,8 @@ hasProcessingProvider=no
 # Tags are comma separated with spaces allowed
 tags=webservice, wms
 
-homepage=http://plugins.gbd-consult.de
+#homepage=http://plugins.gbd-consult.de
+homepage=https://gbd-websuite.de/doc/latest/books/websuite-manager/de/index.html
 category=Web
 icon=icons/icon.png
 # experimental flag

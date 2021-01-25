@@ -52,16 +52,19 @@ class GbdManagerHash():
         '''Sends the hash list to the server'''
         hashList = json.dumps(hashList)
 
-        answ = gws_api_call(url,
-                            'fsWrite',
-                            {'path': '/'
-                            + title
-                            + '/hash_list.json',
-                            'data': hashList},
-                            authcfg)
+        if hashList == '{}':
+            pass
+        else:
+            answ = gws_api_call(url,
+                                'fsWrite',
+                                {'path': '/'
+                                + title
+                                + '/hash_list.json',
+                                'data': hashList},
+                                authcfg)
 
-        with open(os.path.join(projDir, 'hash_list.json'), 'w') as f:
-            f.write(hashList)
+            with open(os.path.join(projDir, 'hash_list.json'), 'w') as f:
+                f.write(hashList)
 
 
     

@@ -60,11 +60,11 @@ from qgis.PyQt.QtWidgets import (
     QHeaderView
 )
 from qgis.PyQt.QtCore import (
-    pyqtSignal, 
-    QFileInfo, 
-    QThread, 
-    Qt, 
-    QUrl, 
+    pyqtSignal,
+    QFileInfo,
+    QThread,
+    Qt,
+    QUrl,
     QRect
 )
 
@@ -292,8 +292,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             self.table_proj.setCellWidget(
                                             row,
                                             1,
-                                            EditButtonWidget(
-                                                            row, 
+                                            EditButtonWidget(row,
                                                              item.text(),
                                                              self.gws_url,
                                                              self.font
@@ -361,25 +360,21 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             if self.title in items:
                 reply = QMessageBox.question(self.iface.mainWindow(),
                                             self.tr('Fortfahren?'),
-                                            self.tr('Ein Projekt mit diesem \
-                                                    Titel existiert bereits, \
-                                                    soll dies ersetzt werden?'),
+                                            self.tr('Ein Projekt mit diesem Titel existiert bereits, soll dies ersetzt werden?'),
                                             QMessageBox.Yes,
                                             QMessageBox.No)
 
                 if reply == QMessageBox.Yes:
                     self.add_Project()
-                    test = self.table_proj.findItems(self.title,
-                                            qgis.PyQt.QtCore.Qt.MatchExactly)
-                    self.table_proj.removeRow(test[0].row())
+                    te = self.table_proj.findItems(self.title, Qt.MatchExactly)
+                    self.table_proj.removeRow(te[0].row())
 
             else:
                 self.add_Project()
 
         else:
             self.iface.messageBar().pushCritical(self.tr('Kein Titel'),
-                                                self.tr('Bitte geben Sie einen \
-                                                    Titel für das Projekt an!')
+                                                self.tr('Bitte geben Sie einen Titel für das Projekt an!')
                                                 )
 
     def get_row(self):
@@ -402,7 +397,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             ret = perm.question(self,
                                 self.tr('Projekt löschen'),
                                 self.tr('Soll das Projekt "')
-                                + self.projekt 
+                                + self.projekt
                                 + self.tr('" wirklich gelöscht werden?'),
                                 perm.Yes | perm.No
                                 )
@@ -431,25 +426,20 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     self.table_proj.removeRow(self.row)
                     self.projekt = None
                     self.iface.messageBar().pushSuccess(self.tr('Erfolgreich gelöscht!'),
-                                                        self.tr('Ihr Projekt wurde in den \
-                                                                Papierkorb verschoben.'))
+                                                        self.tr('Ihr Projekt wurde in den Papierkorb verschoben.'))
 
                 except:
-                    self.iface.messageBar().pushCritical(self.tr('Löschen \
-                                                                fehlgeschlagen!'),
+                    self.iface.messageBar().pushCritical(self.tr('Löschen fehlgeschlagen!'),
                                                         self.tr('Ihr Projekt ')
                                                         + self.projekt
-                                                        + self.tr(' konnte nicht \
-                                                                gelöscht werden.'))
+                                                        + self.tr(' konnte nicht gelöscht werden.'))
 
             if ret == perm.No:
                 pass
 
         else:
             self.iface.messageBar().pushCritical(self.tr('Keine Auswahl'),
-                                                self.tr('Bitte wählen Sie ein \
-                                                        Projekt aus das sie \
-                                                        löschen möchten.'))
+                                                self.tr('Bitte wählen Sie ein Projekt aus das sie löschen möchten.'))
 
     def load_Project(self):
 
@@ -468,7 +458,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                             ):
                 serverHashList = self.hash_manager.load_hash_list(
                     self.gws_url, self.authcfg, self.projekt)
-                print('Server: ',serverHashList)
 
                 with open (os.path.join(self.projectFolder,
                                         self.projekt,
@@ -476,7 +465,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                         )
                             ) as fp:
                     localHashList = json.load(fp)
-                    print('local: ',localHashList)
 
                 downloadLayer = []
 
@@ -524,7 +512,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                                                 {'path': valuess},
                                                                 self.authcfg
                                                                 )
-                                        pathH = os.path.join(self.projectFolder, 
+                                        pathH = os.path.join(self.projectFolder,
                                                             self.projekt,
                                                             valuess.split('/')[1]
                                                             )
@@ -560,7 +548,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                             for keys, valuess in values.items():
                                 if valuess.startswith(str(self.projekt + '/')):
                                     if valuess.endswith('.qgs'):
-                                        op_proj = gws_api_call(self.gws_url, 
+                                        op_proj = gws_api_call(self.gws_url,
                                                                 'fsRead',
                                                                 {'path': valuess},
                                                                 self.authcfg
@@ -660,8 +648,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
         else:
             self.iface.messageBar().pushCritical(self.tr('Laden fehlgeschlagen'),
-                                                self.tr('Bitte wählen Sie ein \
-                                                        Projekt aus!')
+                                                self.tr('Bitte wählen Sie ein Projekt aus!')
                                                 )
 
     def open_Help(self):
@@ -711,9 +698,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
     def checkServer(self, max_tries = 0):
         while max_tries < 30:
             max_tries += 1
-            print(self.gws_url.toString() + '/project/' + self.title)
             a1 = r.get(self.gws_url.toString() + '/project/' + self.title)
-            print(a1)
             if a1.status_code != 200:
                 time.sleep(1)
             else:
@@ -745,11 +730,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                 break
         else:
             self.iface.messageBar().pushCritical(self.tr('GWS Fehler'),
-                                                    self.tr('Server konnte noch \
-                                                        nicht gestartet werden. \
-                                                        Bei erneutem auftreten \
-                                                        kontaktieren Sie bitte \
-                                                        Ihren Admin.'
+                                                    self.tr('Server konnte noch nicht gestartet werden. Bei erneutem auftreten kontaktieren Sie bitte Ihren Admin.'
                                                             )
                                                 )
 
@@ -847,21 +828,18 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                     'rb'
                                     ) as fp:
                             data = fp.read()
+                            print("data1! ", data)
 
                             buildHash, hashStatus = self.hash_manager.build_hash(
                                 data, hashListServer, layer.id())
 
+                            print("buildHash: ", buildHash)
+                            print("hashStatus: ", hashStatus)
+
                             if hashStatus is not None:
-                                answ = gws_api_call(self.gws_url,
-                                                    'fsWrite',
-                                                    {'path': '/'
-                                                    + self.title
-                                                    + '/'
-                                                    + layer.id()
-                                                    + '.geojson',
-                                                    'data': data},
-                                                    self.authcfg
-                                                    )
+                                print("data3! ", data)
+                                answ = gws_api_call(self.gws_url, 'fsWrite', {'path': '/' + self.title + '/' + layer.id() + '.geojson', 'data': data}, 
+                                self.authcfg)
 
                                 hashList[layer.id()] = (buildHash, layer.name())
 

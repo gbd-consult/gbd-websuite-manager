@@ -11,7 +11,7 @@ def gws_api_call(url, cmd, params, authcfg = None, binary=True, compress=True):
 
     Args:
         url: the server url to be called
-        cmd: a command value from the GwsServerApi list,see 
+        cmd: a command value from the GwsServerApi list,see
             https://gws.gbd-consult.de/doc/latest/books/client-developer/en/apiref.html
         params: a dictionary of parameters (as documented above)
         authcgf: an authcfg id for QGIS Authmanager
@@ -20,7 +20,7 @@ def gws_api_call(url, cmd, params, authcfg = None, binary=True, compress=True):
 
     Returns:
         A dict with the server response. If case of an error, the dict contains
-        an `error` subdict with the fields `status` (e.g. 404) and `info`. 
+        an `error` subdict with the fields `status` (e.g. 404) and `info`.
         Otherwise, it contains the response data, as documented above.
     """
 
@@ -48,8 +48,9 @@ def gws_api_call(url, cmd, params, authcfg = None, binary=True, compress=True):
                                                             authCfg = authcfg,
                                                             forceRefresh = True)
 
-    content_type = res.rawHeader(QByteArray(b'Content-Type')) \
-                        .data().decode().lower()
+    #print("daten: ", res.content())
+
+    content_type = res.rawHeader(QByteArray(b'Content-Type')).data().decode().lower()
 
     if content_type.endswith('msgpack'):
         return umsgpack.loads(res.content().data())

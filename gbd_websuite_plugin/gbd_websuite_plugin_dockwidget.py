@@ -773,9 +773,9 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     extentGermany = extentGermany.replace(',', '')
 
                 #proj_dir = tempfile.mkdtemp()
-                pathlib.Path(self.projectFolder, 
+                pathlib.Path(self.projectFolder,
                             self.title
-                            ).mkdir(parents=True, 
+                            ).mkdir(parents=True,
                                     exist_ok=True
                                     )
                 proj_dir = os.path.join(self.projectFolder, self.title)
@@ -828,18 +828,21 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                     'rb'
                                     ) as fp:
                             data = fp.read()
-                            print("data1! ", data)
 
                             buildHash, hashStatus = self.hash_manager.build_hash(
                                 data, hashListServer, layer.id())
 
-                            print("buildHash: ", buildHash)
-                            print("hashStatus: ", hashStatus)
-
                             if hashStatus is not None:
-                                print("data3! ", data)
-                                answ = gws_api_call(self.gws_url, 'fsWrite', {'path': '/' + self.title + '/' + layer.id() + '.geojson', 'data': data}, 
-                                self.authcfg)
+                                answ = gws_api_call(self.gws_url,
+                                                    'fsWrite',
+                                                        {'path': '/'
+                                                        + self.title
+                                                        + '/'
+                                                        + layer.id()
+                                                        + '.geojson',
+                                                        'data': data
+                                                        },
+                                                    self.authcfg)
 
                                 hashList[layer.id()] = (buildHash, layer.name())
 

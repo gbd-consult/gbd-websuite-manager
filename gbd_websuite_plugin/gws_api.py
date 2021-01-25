@@ -48,8 +48,6 @@ def gws_api_call(url, cmd, params, authcfg = None, binary=True, compress=True):
                                                             authCfg = authcfg,
                                                             forceRefresh = True)
 
-    #print("daten: ", res.content())
-
     content_type = res.rawHeader(QByteArray(b'Content-Type')).data().decode().lower()
 
     if content_type.endswith('msgpack'):

@@ -34,6 +34,7 @@ import webbrowser
 import time
 import requests as r
 import pathlib
+import re
 
 #test
 #import threading
@@ -665,6 +666,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
         '''emptys the Plugin'''
 
         self.authcfg = None
+        self.authcfg_select.setConfigId(None)
         self.table_proj.setRowCount(0)
         self.data_projekt.setText('')
         self.aktuelles_projekt.setEnabled(False)
@@ -871,11 +873,14 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
                     elif layer.providerType() == 'wms':
                         if 'type=xyz' in layer.publicSource():
-                            htmlText = layer.htmlMetadata()
-                            url = htmlText.split('<td>GetCapabilitiesUrl</td><td>', 1)[1].split('</td>', 1)[0]
-                            tileLayers[layer.name()] = url
-                    else:
-                        pass
+                            result = re.findall(r"GetCapabilities.+?<td>(.*?)</td>",
+                                                layer.htmlMetadata())
+                            tileLayers[layer.name()] = result[0]
+                            #htmlText = layer.htmlMetadata()
+                            #url = htmlText.split('<td>GetMap-URL</td><td>', 1)[1].split('</td>', 1)[0]
+                            #tileLayers[layer.name()] = url
+                    #else:
+                     #   pass
                 
                 self.hash_manager.save_hash_list(self.gws_url,
                                                 self.authcfg,
@@ -888,8 +893,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                                         self.title
                                                         +'.qgs')
                                                         )
-                tree = ET.parse(str(os.path.join(proj_dir, 
-                                                self.title 
+                tree = ET.parse(str(os.path.join(proj_dir,
+                                                self.title
                                                 + '.qgs'
                                                 )
                                     )
@@ -929,23 +934,23 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     data = fp.read()
 
                 gws_api_call(
-                    self.gws_url,
-                    'fsWrite',
-                    {'path': '/' 
-                    + self.title 
-                    + '/' 
-                    + self.title 
-                    + '.qgs',
-                    'data': data},
-                    self.authcfg
-                )
+                            self.gws_url,
+                            'fsWrite',
+                            {'path': '/'
+                            + self.title
+                            + '/'
+                            + self.title
+                            + '.qgs',
+                            'data': data},
+                            self.authcfg
+                            )
 
                 center = self.iface.mapCanvas().extent().center().toString()
                 center = center.replace(",", " ")
 
                 init_scale = str(self.iface.mapCanvas().scale())
 
-                config = """ 
+                config = """
                     {
                         title """ + self.title + """
                         map.crs """ + '"' + proj_crs + '"' + """

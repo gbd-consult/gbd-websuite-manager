@@ -405,6 +405,9 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
             if ret == perm.Yes:
                 try:
+
+                    QApplication.setOverrideCursor(Qt.WaitCursor)
+
                     answ = gws_api_call(self.gws_url,
                                         'fsList',
                                         {},
@@ -429,6 +432,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     self.iface.messageBar().pushSuccess(self.tr('Erfolgreich gelöscht!'),
                                                         self.tr('Ihr Projekt wurde in den Papierkorb verschoben.'))
 
+                    QApplication.restoreOverrideCursor()
+
                 except:
                     self.iface.messageBar().pushCritical(self.tr('Löschen fehlgeschlagen!'),
                                                         self.tr('Ihr Projekt ')
@@ -447,6 +452,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
         '''Load projects from the Websuite folder'''
 
         if self.projekt:
+
+            QApplication.setOverrideCursor(Qt.WaitCursor)
 
             pathlib.Path(self.projectFolder, self.projekt).mkdir(parents=True,
                                                                 exist_ok=True
@@ -536,6 +543,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                                     op_layer = op_layer['data'].decode('utf-8')
                                                     save_layer.write(op_layer)
 
+                    QApplication.restoreOverrideCursor()
+
                 except NameError:
                     '''hier wird alles heruntergeladen?!'''
 
@@ -593,6 +602,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                             op_layer = op_layer['data'].decode('utf-8')
                                             save_layer.write(op_layer)
 
+                    QApplication.restoreOverrideCursor()
+
             else:
                 answ = gws_api_call(self.gws_url,
                                     'fsList',
@@ -646,6 +657,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                     with open(pathh, 'w') as save_layer:
                                         op_layer = op_layer['data'].decode('utf-8')
                                         save_layer.write(op_layer)
+
+                QApplication.restoreOverrideCursor()   
 
         else:
             self.iface.messageBar().pushCritical(self.tr('Laden fehlgeschlagen'),

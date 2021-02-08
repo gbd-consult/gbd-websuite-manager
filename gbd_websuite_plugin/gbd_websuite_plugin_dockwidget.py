@@ -930,8 +930,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
                 for templayer in root.iter('layer-tree-layer'):
                     id = templayer.attrib['id']
-                    if id in change_layer_source:
-                        templayer.attrib['source'] = './' + id + '.geojson'
+                    #if id in change_layer_source:
+                        #templayer.attrib['source'] = './' + id + '.geojson'
                     if id in changeMemoryLayers:
                         templayer.attrib['providerKey'] = 'ogr'
 

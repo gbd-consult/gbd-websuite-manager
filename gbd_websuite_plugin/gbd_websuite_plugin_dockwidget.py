@@ -84,12 +84,8 @@ from qgis.core import (
 from .gws_api import gws_api_call, as_uid
 from .gws_password import encode
 from .gbd_hash import GbdManagerHash
-#from gbd_modules import gws_api, gws_password
 
 from .dw_b_options import button_options
-
-#pb
-#from .gbd_websuite_progressBar import progressBar
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'gbd_websuite_plugin_dockwidget_base.ui'))
@@ -152,45 +148,13 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
         self.button_load_proj.clicked.connect(self.load_Project)
         self.button_load_proj.clicked.connect(self.open_Project)
         self.button_help.clicked.connect(self.open_Help)
-        self.button_options.clicked.connect(self.doButtonOptions)
+        #self.button_options.clicked.connect(self.doButtonOptions)
 
         # connect functions to signals
         QgsProject.instance().readProject.connect(self.project_Title_or_File)
         QgsProject.instance().writeProject.connect(self.project_Title_or_File)
         self.iface.newProjectCreated.connect(self.new_Project)
         self.table_proj.itemSelectionChanged.connect(self.get_row)
-        #pb
-        #self.uLE.countChanged.connect(self.onCountChanged)
-        #self.countChanged.connect(self.setPB)
-
-    #pb
-    #def setPB(self, value):
-        #self.pB.progressBar.setValue(value)
-
-    '''def showProgressBar(self):
-        self.pB = progressBar()
-        self.pB.show()
-        self.calc = External()
-        self.calc.countChanged.connect(self.onCountChanged)
-        self.calc.start()
-
-    def onCountChanged(self, value):
-        self.pB.progressBar.setValue(value)'''
-
-    '''def sleeper(self, seconds):
-        print('start')
-        time.sleep(seconds)
-        print('fertig')
-
-    def showProgressBar(self):
-
-        self.pB = progressBar()
-        self.pB.show()
-        self.pB.progressBar.setValue(1)
-        t = threading.Thread(target = self.sleeper, args=(2,))
-        t.start()
-        t.join()
-        self.pB.progressBar.setValue(10)'''
 
     def update_auth(self, authcfg):
         """update the auth config."""
@@ -232,14 +196,13 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                 self.authcfg = None
                 self.projectFolder = None
                 self.gws_url = None
-
+    '''
     def doButtonOptions(self):
 
-        ''' 
-        TODO: Function to open the advanced options main window
-        '''
+        #TODO: Function to open the advanced options main window
 
         button_options()
+    '''
 
     def changedConfig(self):
 
@@ -270,7 +233,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             return None
         else:
             project_names = [
-                #path.rstrip('.config.cx')
                 path[:-10]
                 for path in
                 [ e.get('path') for e in projects.get('entries')]
@@ -337,10 +299,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
 
     def button_add_Project(self):
-
-        #pb
-        # self.pB = progressBar()
-        #self.pB.show()
 
         '''Function to add or change projects to the directory'''
 
@@ -546,7 +504,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     QApplication.restoreOverrideCursor()
 
                 except NameError:
-                    '''hier wird alles heruntergeladen?!'''
+                    '''download all the data'''
 
                     answ = gws_api_call(self.gws_url,
                                     'fsList',
@@ -583,7 +541,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                                             valuess.split('/')[1]
                                                             )
                                         with open(pathH, 'w') as save_hash:
-                                            #save_hash = open(pathH, 'w')
                                             op_hash = op_hash['data'].decode('utf-8')
                                             save_hash.write(op_hash)
 
@@ -592,13 +549,11 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                                                 'fsRead',
                                                                 {'path': valuess},
                                                                 self.authcfg)
-                                        #pathh = os.path.join(self.td, valuess.split('/')[1])
                                         pathh = os.path.join(self.projectFolder,
                                                             self.projekt,
                                                             valuess.split('/')[1]
                                                             )
                                         with open(pathh, 'w') as save_layer:
-                                            #save_layer = open(pathh, 'w')
                                             op_layer = op_layer['data'].decode('utf-8')
                                             save_layer.write(op_layer)
 
@@ -685,12 +640,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
         self.aktuelles_projekt.setEnabled(False)
         self.liste_projekte.setEnabled(False)
         self.table_proj.setEnabled(False)
-        '''if self.td:
-            shutil.rmtree(self.td)
-            self.td = None
-
-        else:
-            pass'''
 
     def closeEvent(self, event):
 
@@ -754,8 +703,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
         '''
         Function to add a new Project to the Server
         '''
-        #pb
-        #self.countChanged.emit(5)
 
         if QgsProject.instance().crs().authid()[:4] == 'EPSG':
             if QgsProject.instance().crs().mapUnits() == 0:
@@ -804,9 +751,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                 tileLayers = {}
                 hashList = {}
 
-                #pb
-                # self.countChanged.emit(15)
-
                 for layer in QgsProject.instance().mapLayers().values():
                     if layer.providerType() in {'ogr', 'memory'}:
                         file_path = os.path.join(proj_dir,
@@ -824,18 +768,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                         #if lay_stor < 20 000 000:
                         #if lay_star < 1000000000:
                         change_layer_source.append(layer.id())
-                        
-                        #pb
-                        #self.uLE = uploadLayersExternal(proj_dir, layer.name(), self.hostname, self.title, self.auth)
-                        #self.uLE.countChanged.connect(self.onCountChanged)
-                        #self.uLE.start()
-                        #self.uLE.run(proj_dir, layer.name(), self.hostname, self.title, self.auth)
-                        #self.countChanged.emit(25)
 
-                        #buildHash = gbd_manager_hash.build_hash(path=file_path)
-                        #hashList[layer.id()] = buildHash
-
-                        #with open(os.path.join(proj_dir, layer.name() + '.geojson'), 'rb') as fp:
                         with open(os.path.join(proj_dir,
                                                 layer.id()
                                                 + '.geojson'
@@ -864,9 +797,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                             else:
                                 hashList[layer.id()] = (buildHash, layer.name())
 
-                            #pb
-                            # self.countChanged.emit(75)
-
                             if layer.providerType() == 'memory':
                                 changeMemoryLayers.append(layer.id())
 
@@ -889,11 +819,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                             result = re.findall(r"GetCapabilities.+?<td>(.*?)</td>",
                                                 layer.htmlMetadata())
                             tileLayers[layer.name()] = result[0]
-                            #htmlText = layer.htmlMetadata()
-                            #url = htmlText.split('<td>GetMap-URL</td><td>', 1)[1].split('</td>', 1)[0]
-                            #tileLayers[layer.name()] = url
-                    #else:
-                     #   pass
                 
                 self.hash_manager.save_hash_list(self.gws_url,
                                                 self.authcfg,
@@ -930,8 +855,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
                 for templayer in root.iter('layer-tree-layer'):
                     id = templayer.attrib['id']
-                    #if id in change_layer_source:
-                        #templayer.attrib['source'] = './' + id + '.geojson'
                     if id in changeMemoryLayers:
                         templayer.attrib['providerKey'] = 'ogr'
 
@@ -1018,9 +941,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
                 self.checkServer()
 
-                #pb
-                # self.countChanged.emit(100)
-
                 QApplication.restoreOverrideCursor()
 
             else:
@@ -1032,50 +952,6 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             self.iface.messageBar().pushCritical(self.tr('CRS Fehler!'), 
                                                 self.tr('Bitte wählen sie ein EPSG-Koordinatensystem aus.')
                                                 )
-
-'''class uploadLayersExternal(QThread):
-
-    countChanged = pyqtSignal(int)
-
-    def __init__(self, proj_dir, layer, hostname, title, auth):
-        QThread.__init__(self)
-
-    def run(self):
-
-        self.proj_dir = proj_dir
-        self.layer = layer
-        self.hostname = hostname
-        self.title = title
-        self.auth = auth
-
-        with open(os.path.join(self.proj_dir, self.layer + '.geojson'), 'rb') as fp:
-                                data = fp.read()
-                                answ = gws_api_call(
-                                    self.hostname,
-                                    'fsWrite',
-                                    {'path': '/'
-                                    + self.title
-                                    + '/'
-                                    + self.layer
-                                    + '.geojson',
-                                    'data': data},
-                                    auth = self.auth )
-        self.countChanged.emit(10)
-
-class External(QThread):
-    """
-    Runs a counter thread.
-    """
-
-    countChanged = pyqtSignal(int)
-
-    def run(self, TIME_LIMIT=100):
-        count = 0
-        while count < TIME_LIMIT:
-            count +=1
-            time.sleep(1)
-            self.countChanged.emit(count)'''
-
 
 class EditButtonWidget(QWidget):
 

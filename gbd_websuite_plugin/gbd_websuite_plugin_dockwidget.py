@@ -659,6 +659,29 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
         QgsProject.instance().read(self.path)
 
+    def create_table_entry(self):
+
+        self.table_proj.insertRow(self.rowPosition)
+        self.table_proj.setItem(self.rowPosition,
+                                0,
+                                QTableWidgetItem(self.title)
+                                )
+        self.table_proj.setCellWidget(self.rowPosition,
+                                    1,
+                                    EditButtonWidget(self.rowPosition,
+                                                    self.title,
+                                                    self.gws_url,
+                                                    self.font
+                                                    )
+                                    )
+        self.table_proj.scrollToItem(self.table_proj.item(
+                                                        self.rowPosition,
+                                                        0
+                                                        )
+                                    )
+        self.table_proj.setCurrentCell(self.rowPosition, 0)
+
+
     def checkServer(self, max_tries = 0):
         while max_tries < 30:
             max_tries += 1
@@ -666,25 +689,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             if a1.status_code != 200:
                 time.sleep(1)
             else:
-                self.table_proj.insertRow(self.rowPosition)
-                self.table_proj.setItem(self.rowPosition,
-                                        0,
-                                        QTableWidgetItem(self.title)
-                                        )
-                self.table_proj.setCellWidget(self.rowPosition,
-                                            1,
-                                            EditButtonWidget(self.rowPosition,
-                                                            self.title,
-                                                            self.gws_url,
-                                                            self.font
-                                                            )
-                                            )
-                self.table_proj.scrollToItem(self.table_proj.item(
-                                                                self.rowPosition, 
-                                                                0
-                                                                )
-                                            )
-                self.table_proj.setCurrentCell(self.rowPosition, 0)
+                self.create_table_entry()
+
                 self.iface.messageBar().pushSuccess(self.tr('Projekt gespeichert'),
                                                     self.tr('Sie können es jetzt unter "')
                                                     + str(self.gws_url.toString()
@@ -834,9 +840,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                 tree = ET.parse(str(os.path.join(proj_dir,
                                                 self.title
                                                 + '.qgs'
-                                                )
-                                    )
-                                )
+                                                )))
                 root = tree.getroot()
 
                 for maplayer in root.iter('maplayer'):
@@ -860,14 +864,8 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
 
                 tree.write(str(os.path.join(proj_dir, self.title + '.qgs')))
 
-                with open(str(os.path.join(proj_dir,
-                                            self.title
-                                            + '.qgs'
-                                            )
-                            ),
-                            'rb'
-                        ) as fp:
-                    data = fp.read()
+                with open(str(os.path.join(proj_dir, self.title + '.qgs')),
+                        'rb') as fp:data = fp.read()
 
                 gws_api_call(
                             self.gws_url,
@@ -881,65 +879,74 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                             self.authcfg
                             )
 
-                center = self.iface.mapCanvas().extent().center().toString()
-                center = center.replace(",", " ")
+                if self.gws_publish_project.checkState() == 2:
+                                    
+                    center = self.iface.mapCanvas().extent().center().toString()
+                    center = center.replace(",", " ")
 
-                init_scale = str(self.iface.mapCanvas().scale())
+                    init_scale = str(self.iface.mapCanvas().scale())
 
-                config = """
-                    {
-                        title """ + self.title + """
-                        map.crs """ + '"' + proj_crs + '"' + """
-                        map.center [""" + center + """]
-                        map.zoom.initScale """ + init_scale + """
-                        map.zoom.scales [1000000 500000 250000 150000 70000 50000 25000 10000 5000 2500 1000 500 250]
-                        map.extentBuffer {{5000}}   
-                        map.extent """ + extentGermany + """
-
-                        api.actions+ { type "search"}
-
-                        map.layers+  {
+                    config = """
+                        {
                             title """ + self.title + """
-                            type "qgis" 
-                            path "./""" + self.title + """/""" + self.title + """.qgs"
-                            directRender ["wms"]
-                        }
-                    }"""
+                            map.crs """ + '"' + proj_crs + '"' + """
+                            map.center [""" + center + """]
+                            map.zoom.initScale """ + init_scale + """
+                            map.zoom.scales [1000000 500000 250000 150000 70000 50000 25000 10000 5000 2500 1000 500 250]
+                            map.extentBuffer {{5000}}   
+                            map.extent """ + extentGermany + """
 
-                #Dynamic Parts of the config.cx
+                            api.actions+ { type "search"}
 
-                if excludeLayers:
-                    pos = config.find('.qgs') + 5
-                    config2 = config[:pos] + """
-                    excludeLayers:
-                        \t{"names": """ + str(excludeLayers) + """
-                    }""" + config[pos:]
-                    config = config2
+                            map.layers+  {
+                                title """ + self.title + """
+                                type "qgis" 
+                                path "./""" + self.title + """/""" + self.title + """.qgs"
+                                directRender ["wms"]
+                            }
+                        }"""
+
+                    #Dynamic Parts of the config.cx
+
+                    if excludeLayers:
+                        pos = config.find('.qgs') + 5
+                        config2 = config[:pos] + """
+                        excludeLayers:
+                            \t{"names": """ + str(excludeLayers) + """
+                        }""" + config[pos:]
+                        config = config2
+                    else:
+                        pass
+
+
+                    if not tileLayers:
+                        pass
+                    else:
+                        for i in tileLayers:
+                            config3 = config[:-1] + """map.layers+  {
+                                title """ + '''"''' + i + '''"''' + """
+                                type "tile"
+                                url """ + '''"''' + tileLayers[i] + '''"''' +""" \n}
+                                """ + config[-1:]
+                            config = config3
+
+                    ###
+
+                    gws_api_call(
+                        self.gws_url,
+                        'fsWrite',
+                        {'path': self.title + '.config.cx', 'data': config},
+                        self.authcfg
+                    )
+
+                    self.checkServer()
+
                 else:
-                    pass
+                    self.create_table_entry()
 
+                    self.iface.messageBar().pushSuccess(self.tr('Projekt gespeichert'),
+                                                        self.tr('Sie können es jetzt verwenden.'))
 
-                if not tileLayers:
-                    pass
-                else:
-                    for i in tileLayers:
-                        config3 = config[:-1] + """map.layers+  {
-                            title """ + '''"''' + i + '''"''' + """
-                            type "tile"
-                            url """ + '''"''' + tileLayers[i] + '''"''' +""" \n}
-                            """ + config[-1:]
-                        config = config3
-
-                ###
-
-                gws_api_call(
-                    self.gws_url,
-                    'fsWrite',
-                    {'path': self.title + '.config.cx', 'data': config},
-                    self.authcfg
-                )
-
-                self.checkServer()
 
                 QApplication.restoreOverrideCursor()
 

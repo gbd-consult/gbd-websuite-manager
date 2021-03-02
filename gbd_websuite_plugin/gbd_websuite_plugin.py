@@ -248,4 +248,4 @@ class gbdWebsuite:
             # Hide button_options, because no aditional options are implemented yet
             self.dockwidget.button_options.setVisible(False)
             self.dockwidget.set_font()
-            self.dockwidget.data_projekt.resize(261, 27)
+            #self.dockwidget.data_projekt.resize(261, 27)

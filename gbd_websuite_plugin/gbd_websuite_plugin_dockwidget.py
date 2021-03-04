@@ -353,6 +353,15 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                             QMessageBox.No)
 
                 if reply == QMessageBox.Yes:
+
+                    if self.gws_publish_project.checkState() == 0:
+                        gws_api_call(
+                            self.gws_url,
+                            'fsDelete',
+                            {'path': str(self.title + '.config.cx')},
+                            self.authcfg
+                        )
+
                     self.add_Project()
                     te = self.table_proj.findItems(self.title, Qt.MatchExactly)
                     self.table_proj.removeRow(te[0].row())

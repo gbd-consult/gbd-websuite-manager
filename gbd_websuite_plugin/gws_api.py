@@ -50,12 +50,15 @@ def gws_api_call(url, cmd, params, authcfg = None, binary=True, compress=True):
 
     content_type = res.rawHeader(QByteArray(b'Content-Type')).data().decode().lower()
 
-    if content_type.endswith('msgpack'):
-        return umsgpack.loads(res.content().data())
-    if content_type.endswith('json'):
-        return json.loads(str(res.content().data(), 'utf-8'))
+    try:
+        if content_type.endswith('msgpack'):
+            return umsgpack.loads(res.content().data())
+        if content_type.endswith('json'):
+            return json.loads(str(res.content().data(), 'utf-8'))
 
-    raise ValueError('Unexpected content-type ' + repr(content_type))
+        raise ValueError('Unexpected content-type ' + repr(content_type))
+    except:
+        pass
 
 #################################################################
 

@@ -287,7 +287,11 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                                                 )
                                                 )
             if all_projects[row] in projects_un:
-                pass
+                self.table_proj.setCellWidget(
+                    row,
+                    1,
+                    notPublishedButtonWidget(self)
+                )
 
 
         
@@ -706,13 +710,20 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                 )
         if self.gws_publish_project.checkState() == 2:
             self.table_proj.setCellWidget(self.rowPosition,
-                                        1,
-                                        EditButtonWidget(self.rowPosition,
-                                                        self.title,
-                                                        self.gws_url,
-                                                        self.font
-                                                        )
-                                        )
+                    1,
+                    EditButtonWidget(self.rowPosition,
+                                    self.title,
+                                    self.gws_url,
+                                    self.font
+                                    )
+                )
+
+        else: 
+            self.table_proj.setCellWidget(
+                    self.rowPosition,
+                    1,
+                    notPublishedButtonWidget(self)
+                )
                         
         self.table_proj.scrollToItem(self.table_proj.item(
                                                         self.rowPosition,
@@ -999,6 +1010,25 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             self.iface.messageBar().pushCritical(self.tr('CRS Fehler!'), 
                                                 self.tr('Bitte wählen sie ein EPSG-Koordinatensystem aus.')
                                                 )
+class notPublishedButtonWidget(QWidget):
+
+    def __init__(self, parent=None):
+        super(notPublishedButtonWidget,self).__init__(parent)
+
+        self.layout = QHBoxLayout(self)
+
+        self.layout.setContentsMargins(0,0,0,0)
+        self.layout.setSpacing(0)
+
+        self.b3 = QPushButton()
+        self.b3.setToolTip(self.tr('Dieses Projekt wurde nicht im WebGIS veröffentlicht.'))
+        self.b3.setIcon(QtGui.QIcon(':/plugins/gbd_websuite_plugin/icons/icon_unpublished.png'))
+
+        self.layout.addWidget(self.b3)
+
+        self.setLayout(self.layout)
+
+
 
 class EditButtonWidget(QWidget):
 
@@ -1009,7 +1039,7 @@ class EditButtonWidget(QWidget):
     def __init__(self, row, title, host, font, parent=None):
         super(EditButtonWidget,self).__init__(parent)
 
-        # variables 
+        # variables
         self.title = title
         self.row = row
         self.font = font

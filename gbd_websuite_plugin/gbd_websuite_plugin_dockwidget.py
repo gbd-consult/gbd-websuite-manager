@@ -162,7 +162,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
         self.liste_projekte.setEnabled(False)
         self.aktuelles_projekt.setEnabled(False)
         self.table_proj.setEnabled(False)
-        self.populate_table([])
+        #self.populate_table([])
 
         # reset variables
         self.projectFolder = None
@@ -180,18 +180,21 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
             })
             with open(self.config_path, 'w') as fp:
                 json.dump(self.config, fp)
-            self.projects = self.load_projects()
-            if self.projects:
+            self.projects, self.unpublished_projects = self.load_projects()
+            if self.projects or self.unpublished_projects:
+                #if self.projects:
                 self.projectFolder = os.path.join(
                     os.path.dirname(self.config_path),
                     'projects',
                     self.gws_url.host()
                 )
-                self.populate_table(self.projects)
+                self.populate_table(self.projects, self.unpublished_projects)
                 self.aktuelles_projekt.setEnabled(True)
                 self.liste_projekte.setEnabled(True)
                 self.table_proj.setEnabled(True)
                 self.project_Title_or_File()
+                #if self.unpublished_projects:
+                    #pass
             else:
                 self.authcfg = None
                 self.projectFolder = None
@@ -238,29 +241,55 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                 [ e.get('path') for e in projects.get('entries')]
                 if path.endswith('.config.cx')
             ]
-            return project_names
+            qgis_names = [
+                path
+                for path in 
+                [ e.get('path') for e in projects.get('entries')]
+                if path.endswith('.qgs')
+            ]
 
+            n_p = []
+            project_unpublished_names = []
 
-    def populate_table(self, projects):
+            for i in qgis_names:
+                x = re.search(r'^(.*?)\/', i)
+                n_p.append(x.group(1))
+
+            for i in n_p:
+                if i in project_names:
+                    pass
+                else:
+                    project_unpublished_names.append(i)
+
+            return project_names, project_unpublished_names
+
+    def populate_table(self, projects, projects_un):
         """Fill the table with the GWS projects."""
-        nb_row = len(projects)
+        nb_row = len(projects + projects_un)
         nb_col = 2
 
         self.table_proj.setRowCount(nb_row)
         self.table_proj.setColumnCount(nb_col)
 
+        all_projects = projects + projects_un
+
         for row in range(nb_row):
-            item = QTableWidgetItem(projects[row])
+            item = QTableWidgetItem(all_projects[row])
             self.table_proj.setItem(row, 0, item)
-            self.table_proj.setCellWidget(
-                                            row,
-                                            1,
-                                            EditButtonWidget(row,
-                                                             item.text(),
-                                                             self.gws_url,
-                                                             self.font
-                                                             )
-                                            )
+            if all_projects[row] in projects:
+                self.table_proj.setCellWidget(
+                                                row,
+                                                1,
+                                                EditButtonWidget(row,
+                                                                item.text(),
+                                                                self.gws_url,
+                                                                self.font
+                                                                )
+                                                )
+            if all_projects[row] in projects_un:
+                pass
+
+
         
         self.table_proj.horizontalHeader().setSectionResizeMode(
                                                                 0,
@@ -666,14 +695,16 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                 0,
                                 QTableWidgetItem(self.title)
                                 )
-        self.table_proj.setCellWidget(self.rowPosition,
-                                    1,
-                                    EditButtonWidget(self.rowPosition,
-                                                    self.title,
-                                                    self.gws_url,
-                                                    self.font
-                                                    )
-                                    )
+        if self.gws_publish_project.checkState() == 2:
+            self.table_proj.setCellWidget(self.rowPosition,
+                                        1,
+                                        EditButtonWidget(self.rowPosition,
+                                                        self.title,
+                                                        self.gws_url,
+                                                        self.font
+                                                        )
+                                        )
+                        
         self.table_proj.scrollToItem(self.table_proj.item(
                                                         self.rowPosition,
                                                         0
@@ -880,7 +911,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                             )
 
                 if self.gws_publish_project.checkState() == 2:
-                                    
+
                     center = self.iface.mapCanvas().extent().center().toString()
                     center = center.replace(",", " ")
 

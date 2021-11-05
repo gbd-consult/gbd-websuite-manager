@@ -9,34 +9,35 @@ Dieses Plugin ermöglicht die einfache Bereitstellung eines QGIS Projektes in de
 Installation
 ------------
 
-Das Plugin wird über das [Plugin Repository der Geoinformatikbüro Dassau GmbH](https://plugins.gbd-consult.de) bereitgestellt. Sie können das Repository über den QGIS Pluginmanager einbinden.
+Es gibt zwei Möglichkeiten, das Plugin in QGIS zu installieren. Zum einen können Sie es von unserem [Plugin Repository](https://plugins.gbd-consult.de/) herunterladen und als ZIP-Datei in QGIS einbinden.
+
+Zum anderen ist eine direkte Einbindung unseres Plugin-Repositorys in QGIS über folgenden Link möglich:
 
 <img src="/images/repodetails.png" width="500">
 
-Das Plugin kann über das Menü Erweiterungen -> GBD WebSuite Manager geladen werden.
+Wenn das Plugin installiert ist, ist es in QGIS unter Web -> GBD WebSuite -> GBD WebSuite Manager zu finden.
+Alternativ kann es in den Werkzeugkästen ausgewählt und somit prominent in die Werkzeugleiste integriert werden.
 
+Anmelden
+--------
 
-Bedienung
----------
-Wenn Sie das GBD WebSuite Manager Plugin in QGIS geladen und geöffnet haben, finden Sie folgendes Fenster vor:
+Um das GBD WebSuite Plugin nutzen zu können muss man sich auf einem GBD WebSuite Server, mit aktivierter GBD WebSuite Manager Schnittstelle, authentifizieren.
+Für diese Authentifizierung wird das QGIS eigene Authentifizierungssystem genutz.
 
-<img src="/images/gbdmanager_blank.png" width="500">
+Zuerst, falls noch nicht vorhanden, muss unter **Einstellungen -> Optionen -> Authentifizierung** ein Hauptpasswort gesetzt werden. Danach kann man über **Neue Authentifizierungskonfiguration hinzufügen** eine neue Verbindungen erstellen. Für eine Verbindung muss ein Name, Nutzername, Passwort und Serveradresse gesetzt werden, wobei Nutzername, Passwort und Serveradresse den Daten der GBD WebSuite Installation entsprechen müssen.
 
-Hier müssen Sie ihre .json Login-Datei hinterlegen.
+<img src="/images/anmmeldung.png" width="500">
 
-Den Anmeldevorgang können Sie auch automatisieren, indem Sie in Ihrem QGIS Benutzerprofil die Login-Datei hinterlegen.
+Die Authentifizierung sollte nun unter dem Drop Down Menü auswählbar sein und, bei Auswahl, automatisch eine Verbindung zur GBD WebSuite herstellen.
+Sollten mehrere GBD WebSuite Installationen vorhanden sein, können auch mehrere Authentifizierungen hinterlegt werden, und zwischen diesen gewechselt werden.
 
-Hierfür lassen Sie sich, über die QGIS Python-Konsole, den Pfad zum aktuellen Benutzerprofil ausgeben, mit: 
+<img src="/images/authentifizierung.png" width="500">
 
-    QgsApplication.qgisSettingsDirPath()
+Das Plugin prüft automatisch die Authentifizierung und stellt, bei Erfolg, das Plugin auf aktiv und läd die vorhandenen Projekte.
 
-Unter diesem Pfad erstellen Sie dann einen Ordner mit dem Namen **GBD_WebSuite** und legen hier ihre .json Login-Datei ab, diese muss den Namen **qgws-manager.json** haben.
+Jetzt können Sie neue Projekte hinzufügen, vorhandene Projekte - zur Bearbeitung - in QGIS laden, Projekte löschen und sich den Link zur WebSuite anzeigen lassen oder direkt in den Browser wechseln.
 
-Nach der Anmeldung überprüft das Plugin ihre Authentifizierung, bei Erfolg werden die vorhandenen Projekte geladen und das Plugin wird auf aktiv geschlatet.
-
-<img src="/images/gbdmanager_aktiv.png" width="500">
-
-Jetzt können Sie neue Projekte hinzufügen, vorhandene Projekte, zur Bearbeitung, in QGIS laden, Projekte löschen und sich den Link zur WebSuite anzeigen lassen oder direkt in den Browser wechseln.
+Weitere Informationen finden Sie im [GBD WebSuite Manager Benutzerhandbuch](https://gbd-websuite.de/doc/latest/books/websuite-manager/de/index.html)
 
 ## Lizenz
 

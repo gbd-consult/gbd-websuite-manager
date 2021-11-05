@@ -940,6 +940,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     config = """
                         {
                             title """ + self.title + """
+                            meta.abstract "manager_project"
                             map.crs """ + '"' + proj_crs + '"' + """
                             map.center [""" + center + """]
                             map.zoom.initScale """ + init_scale + """

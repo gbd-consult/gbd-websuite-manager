@@ -26,7 +26,7 @@ Für diese Authentifizierung wird das QGIS eigene Authentifizierungssystem genut
 
 Zuerst, falls noch nicht vorhanden, muss unter **Einstellungen -> Optionen -> Authentifizierung** ein Hauptpasswort gesetzt werden. Danach kann man über **Neue Authentifizierungskonfiguration hinzufügen** eine neue Verbindungen erstellen. Für eine Verbindung muss ein Name, Nutzername, Passwort und Serveradresse gesetzt werden, wobei Nutzername, Passwort und Serveradresse den Daten der GBD WebSuite Installation entsprechen müssen.
 
-<img src="/images/anmmeldung.png" width="500">
+<img src="/images/anmeldung.png" width="500">
 
 Die Authentifizierung sollte nun unter dem Drop Down Menü auswählbar sein und, bei Auswahl, automatisch eine Verbindung zur GBD WebSuite herstellen.
 Sollten mehrere GBD WebSuite Installationen vorhanden sein, können auch mehrere Authentifizierungen hinterlegt werden, und zwischen diesen gewechselt werden.

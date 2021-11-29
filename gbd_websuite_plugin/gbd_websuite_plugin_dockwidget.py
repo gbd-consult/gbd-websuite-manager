@@ -930,7 +930,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                             self.authcfg
                             )
 
-                if self.gws_publish_project.checkState() == 2:
+                if self.gws_publish_project.checkState() == 2 or self.gws_wms.checkState() == 2 or self.gws_wfs.checkState() == 2:
 
                     center = self.iface.mapCanvas().extent().center().toString()
                     center = center.replace(",", " ")
@@ -940,7 +940,7 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                     config = """
                         {
                             title """ + self.title + """
-                            meta.abstract "manager_project"
+
                             map.crs """ + '"' + proj_crs + '"' + """
                             map.center [""" + center + """]
                             map.zoom.initScale """ + init_scale + """
@@ -957,6 +957,22 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                 directRender ["wms"]
                             }
                         }"""
+
+                    if self.gws_publish_project.checkState() == 2:
+                        config_stat = config[:-1] + """
+                        \n meta.abstract "manager_project"
+                        """ + config[-1:]
+                        config = config_stat
+                    elif self.gws_wms.checkState() == 2:
+                        config_stat = config[:-1] + """
+                        \n meta.abstract "only_ows"
+                        """ + config[-1:]
+                        config = config_stat
+                    elif self.gws_wfs.checkState() == 2:
+                        config_stat = config[:-1] + """
+                        \n meta.abstract "only_ows"
+                        """ + config[-1:]
+                        config = config_stat
 
                     #Dynamic Parts of the config.cx
 
@@ -981,6 +997,50 @@ class gbdWebsuiteDockWidget(QDockWidget, FORM_CLASS):
                                 url """ + '''"''' + tileLayers[i] + '''"''' +""" \n}
                                 """ + config[-1:]
                             config = config3
+
+                    #Check for roles
+                    if self.gws_roles.checkState() == 2:
+                        access = {"access": []}
+                        if self.roles_ows.text():
+                            #access = {"access": []}
+                            roles = self.roles_ows.text()
+                            for i in roles.replace(" ","").split(","):
+                                role = { "role": i, "type":"allow"}
+                                access["access"].append(role)
+                            #access["access"].append({ "role": "all", "type":"deny"})
+                        access["access"].append({ "role": "all", "type":"deny"})
+
+                    #Check if WMS-Layer should be activated
+                    if self.gws_wms.checkState() == 2:
+                        config4 = config[:-1] + """\n     api.actions+ {
+                                    type "ows"
+                                    services+ {
+                                        type "wms"
+                                        uid "wms_""" + self.title + """"
+                                     } }"""
+                        if self.gws_roles.checkState() == 2:
+                            config_t = config4[:-1] + """\n access """ + str(access["access"]) +"""
+                                 }""" 
+                            config4 = config_t 
+                        config= config4 + """}"""
+
+                    #Check if WMS-Layer should be activated
+                    if self.gws_wfs.checkState() == 2:
+                        config5 = config[:-1] + """\n     api.actions+ {
+                                    type "ows"
+                                    services+ {
+                                        type "wfs"
+                                        uid "wfs_""" + self.title + """"
+                                     } }"""
+                        if self.gws_roles.checkState() == 2:
+                            config_t = config5[:-1] + """\n access """ + str(access["access"]) +"""
+                                }  """ 
+                            config5 = config_t
+                        config= config5+ """}"""
+
+
+                    #access """ + str(access["access"]) +"""
+
 
                     ###
 

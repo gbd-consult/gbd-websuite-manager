@@ -235,7 +235,7 @@
          <item>
           <widget class="QCheckBox" name="gws_roles">
            <property name="text">
-            <string>Zugirff nur für:</string>
+            <string>Zugriff nur für:</string>
            </property>
           </widget>
          </item>
